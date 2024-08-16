@@ -38,8 +38,8 @@ public class ProjectService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid author ID"));
         project.setUser(author);
 
-        List<User> users = userRepository.findAllById(projectDTO.getUserIds());
-        project.setUsers(users);
+//        List<User> users = userRepository.findAllById(projectDTO.getUserIds());
+//        project.setUsers(users);
 
         return projectRepository.save(project);  // Дата создания будет установлена автоматически
     }
