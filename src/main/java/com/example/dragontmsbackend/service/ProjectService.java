@@ -5,6 +5,7 @@ import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.model.folder.Type;
 import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.model.user.User;
+import com.example.dragontmsbackend.repository.FolderRepository;
 import com.example.dragontmsbackend.repository.ProjectRepository;
 import com.example.dragontmsbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,12 @@ import java.util.Optional;
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final FolderRepository folderRepository;
 
-    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository) {
+    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository, FolderRepository folderRepository) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
+        this.folderRepository = folderRepository;
     }
 
     public List<Project> getAllProjects() {
@@ -43,12 +46,14 @@ public class ProjectService {
 
 //        List<User> users = userRepository.findAllById(projectDTO.getUserIds());
 //        project.setUsers(users);
+
         Project projectFromDB =  projectRepository.save(project);
 
         Folder folder = new Folder();
-        folder.setProject(projectFromDB.getId());
+        folder.setProject(projectFromDB);
         folder.setName(project.getName());
         folder.setType(Type.FOLDER);
+
         List<Folder> folders = new ArrayList<>();
         folders.add(folder);
 
@@ -56,6 +61,9 @@ public class ProjectService {
             System.out.println("Create add folder in project id " +projectFromDB.getId());
             project.setFolders(folders);
         }
+
+        folderRepository.save(folder);
+
         return project;
           // Дата создания будет установлена автоматически
     }

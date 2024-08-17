@@ -3,6 +3,7 @@ package com.example.dragontmsbackend.model.folder;
 import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.model.testcase.TestCase;
 import com.example.dragontmsbackend.model.testplan.TestPlan;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -42,5 +43,6 @@ public class Folder {
 
     @ManyToOne
     @JoinColumn(name = "project_id")
+    @JsonBackReference
     private Project project;
 }
