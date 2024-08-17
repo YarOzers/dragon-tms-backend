@@ -4,6 +4,7 @@ import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.model.testcase.TestCase;
 import com.example.dragontmsbackend.model.testcase.TestCaseResult;
 import com.example.dragontmsbackend.model.testplan.TestPlan;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -25,14 +26,19 @@ public class User {
     private Right rights;
 
     @OneToMany(mappedBy = "user")
+    @JsonManagedReference
     private List<Project> projects;
+
     @OneToMany(mappedBy = "user")
+    @JsonManagedReference
     private List<TestPlan> testPlans;
+
     @OneToMany(mappedBy = "user")
+    @JsonManagedReference
     private List<TestCase> testCases;
+
     @OneToMany(mappedBy = "user")
+    @JsonManagedReference
     private List<TestCaseResult> testCaseResults;
-    @OneToMany
-    private List<Project> authorProjects;
 
 }

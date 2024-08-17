@@ -3,6 +3,8 @@ package com.example.dragontmsbackend.model.project;
 import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.model.testplan.TestPlan;
 import com.example.dragontmsbackend.model.user.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -22,6 +24,7 @@ public class Project {
 
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
+    @JsonBackReference
     private User user;
 
     @ManyToMany
@@ -30,6 +33,7 @@ public class Project {
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @JsonManagedReference
     private List<User> users;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)

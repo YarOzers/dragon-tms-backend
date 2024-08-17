@@ -2,6 +2,7 @@ package com.example.dragontmsbackend.model.testcase;
 
 import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.model.user.User;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -34,7 +35,8 @@ public class TestCase {
 
     // Связь с автором тест-кейса (пользователем)
     @ManyToOne
-    @JoinColumn(name = "author_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonManagedReference
     private User user;
 
     // Связь с данными тест-кейса

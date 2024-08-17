@@ -1,6 +1,8 @@
 package com.example.dragontmsbackend.service;
 
 import com.example.dragontmsbackend.dto.ProjectDTO;
+import com.example.dragontmsbackend.model.folder.Folder;
+import com.example.dragontmsbackend.model.folder.Type;
 import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.model.user.User;
 import com.example.dragontmsbackend.repository.ProjectRepository;
@@ -8,6 +10,7 @@ import com.example.dragontmsbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,8 +43,21 @@ public class ProjectService {
 
 //        List<User> users = userRepository.findAllById(projectDTO.getUserIds());
 //        project.setUsers(users);
+        Project projectFromDB =  projectRepository.save(project);
 
-        return projectRepository.save(project);  // Дата создания будет установлена автоматически
+        Folder folder = new Folder();
+        folder.setProject(projectFromDB.getId());
+        folder.setName(project.getName());
+        folder.setType(Type.FOLDER);
+        List<Folder> folders = new ArrayList<>();
+        folders.add(folder);
+
+        if (projectFromDB.getFolders() == null || projectFromDB.getFolders().isEmpty()){
+            System.out.println("Create add folder in project id " +projectFromDB.getId());
+            project.setFolders(folders);
+        }
+        return project;
+          // Дата создания будет установлена автоматически
     }
 
     @Transactional
@@ -57,6 +73,7 @@ public class ProjectService {
 
         List<User> users = userRepository.findAllById(projectDTO.getUserIds());
         project.setUsers(users);
+
 
         project.setCreatedDate(projectDTO.getCreatedDate());
         return projectRepository.save(project);
