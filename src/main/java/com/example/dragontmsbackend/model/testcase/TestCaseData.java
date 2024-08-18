@@ -1,6 +1,8 @@
 package com.example.dragontmsbackend.model.testcase;
 
 import com.example.dragontmsbackend.model.user.User;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -9,6 +11,7 @@ import java.util.List;
 
 @Entity
 @Data
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class TestCaseData {
 
     @Id
@@ -18,7 +21,6 @@ public class TestCaseData {
     @Enumerated(EnumType.STRING)
     private AutomationFlag automationFlag;
 
-    // Связь с автором изменений
     @ManyToOne
     @JoinColumn(name = "changes_author_id", nullable = false)
     private User changesAuthor;
@@ -29,15 +31,12 @@ public class TestCaseData {
 
     private String name;
 
-    // Связь с преусловиями тест-кейса
     @OneToMany(mappedBy = "testCaseData", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TestCasePreCondition> preConditionItems;
 
-    // Связь с шагами тест-кейса
     @OneToMany(mappedBy = "testCaseData", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TestCaseStep> stepItems;
 
-    // Связь с постусловиями тест-кейса
     @OneToMany(mappedBy = "testCaseData", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TestCasePostCondition> postConditionItems;
 
@@ -52,15 +51,12 @@ public class TestCaseData {
     @Enumerated(EnumType.STRING)
     private TestCaseStatus status;
 
-    // Добавляем связь с TestCase
     @ManyToOne
     @JoinColumn(name = "test_case_id", nullable = false)
     private TestCase testCase;
 
-    // Метод, который автоматически устанавливает дату создания перед сохранением
     @PrePersist
     protected void onCreate() {
         this.createdDate = LocalDateTime.now();
     }
-
 }
