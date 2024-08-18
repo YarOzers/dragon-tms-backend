@@ -1,19 +1,23 @@
 package com.example.dragontmsbackend.service;
 
+import com.example.dragontmsbackend.dto.FolderDTO;
+import com.example.dragontmsbackend.exception.ResourceNotFoundException;
 import com.example.dragontmsbackend.model.folder.Folder;
-import com.example.dragontmsbackend.model.folder.Type;
 import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.repository.FolderRepository;
 import com.example.dragontmsbackend.repository.ProjectRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class FolderService {
 
+    private static final Logger logger = LoggerFactory.getLogger(FolderService.class);
     private final FolderRepository folderRepository;
     public final ProjectRepository projectRepository;
 
@@ -22,45 +26,38 @@ public class FolderService {
         this.projectRepository = projectRepository;
     }
 
-    public List<Folder> getProjectFolders(Long projectId){
-       return this.folderRepository.findByProjectId(projectId);
+    public List<Folder> getProjectFolders(Long projectId) {
+        // Получаем все папки проекта
+        List<Folder> allFolders = this.folderRepository.findByProjectId(projectId);
 
+        // Фильтруем, оставляя только корневые папки (у которых нет родительской папки)
+        return allFolders.stream()
+                .filter(folder -> folder.getParentFolder() == null)
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public Folder addChildFolder(Long parentFolderId, String name, Type type, Long projectId) {
-        // Ищем родительскую папку по её ID
-        Optional<Folder> parentFolderOptional = folderRepository.findById(parentFolderId);
+    public Folder addChildFolder(Long parentFolderId, FolderDTO folderDTO) {
+        logger.info("Adding child folder '{}' to parent folder with ID '{}' in project with ID '{}'",
+                folderDTO.getName(), parentFolderId, folderDTO.getProjectId());
 
-        if (parentFolderOptional.isEmpty()) {
-            throw new IllegalArgumentException("Parent folder not found with ID: " + parentFolderId);
-        }
+        Folder parentFolder = folderRepository.findById(parentFolderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Parent folder not found with ID: " + parentFolderId));
 
-        Folder parentFolder = parentFolderOptional.get();
+        Project project = projectRepository.findById(folderDTO.getProjectId())
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + folderDTO.getProjectId()));
 
-        // Ищем проект по его ID
-        Optional<Project> projectOptional = projectRepository.findById(projectId);
-
-        if (projectOptional.isEmpty()) {
-            throw new IllegalArgumentException("Project not found with ID: " + projectId);
-        }
-
-        Project project = projectOptional.get();
-
-        // Создаем новую дочернюю папку
         Folder childFolder = new Folder();
-        childFolder.setName(name);
-        childFolder.setType(type);
+        childFolder.setName(folderDTO.getName());
+        childFolder.setType(folderDTO.getType());
         childFolder.setProject(project);
         childFolder.setParentFolder(parentFolder);
 
-        // Добавляем дочернюю папку к списку дочерних папок родительской папки
         parentFolder.getChildFolders().add(childFolder);
-
-        // Сохраняем родительскую папку (вместе с новой дочерней папкой)
         folderRepository.save(parentFolder);
 
-        // Возвращаем сохраненную дочернюю папку
+        logger.info("Child folder '{}' successfully added to parent folder with ID '{}'", folderDTO.getName(), parentFolderId);
+
         return childFolder;
     }
 }
