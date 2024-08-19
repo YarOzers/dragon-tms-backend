@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TestCaseService {
@@ -28,9 +29,14 @@ public class TestCaseService {
         return testCaseRepository.findTestCasesByFolder(folder);
     }
 
+    public Optional<TestCase> getTestCase(Long testCaseId){
+        return testCaseRepository.findById(testCaseId);
+    }
+
     // Добавление тест-кейса в папку
     @Transactional
     public TestCase addTestCaseToFolder(Long folderId, TestCase testCase) {
+        System.out.println("TEST_CASE::::" + testCase);
         Folder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid folder ID"));
 
@@ -116,7 +122,7 @@ public class TestCaseService {
             newTestCaseData.setName(data.getName());
             newTestCaseData.setAutomationFlag(data.getAutomationFlag());
             newTestCaseData.setPriority(data.getPriority());
-            newTestCaseData.setType(data.getType());
+            newTestCaseData.setTestCaseType(data.getTestCaseType());
             newTestCaseData.setStatus(data.getStatus());
             newTestCase.getData().add(newTestCaseData);
         }

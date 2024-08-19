@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/testcases")
@@ -34,6 +35,12 @@ public class TestCaseController {
     public ResponseEntity<TestCase> addTestCaseToFolder(@PathVariable Long folderId, @RequestBody TestCase testCase) {
         TestCase createdTestCase = testCaseService.addTestCaseToFolder(folderId, testCase);
         return ResponseEntity.ok(createdTestCase);
+    }
+
+    @GetMapping("/testcase/{testCaseId}")
+    public ResponseEntity<Optional<TestCase>> getTestCase(@PathVariable Long testCaseId){
+        Optional<TestCase> testCase = testCaseService.getTestCase(testCaseId);
+        return ResponseEntity.ok(testCase);
     }
 
     // Обновление тест-кейса (добавление новой версии данных)

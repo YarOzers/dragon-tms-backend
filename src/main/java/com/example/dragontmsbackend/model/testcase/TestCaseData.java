@@ -44,7 +44,7 @@ public class TestCaseData {
     private Priority priority;
 
     @Enumerated(EnumType.STRING)
-    private TestCaseType type;
+    private TestCaseType testCaseType;
 
     private int version;
 
