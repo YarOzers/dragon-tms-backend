@@ -8,6 +8,7 @@ import com.example.dragontmsbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -137,6 +138,28 @@ public class TestCaseService {
             throw new IllegalArgumentException("Invalid test case ID");
         }
         testCaseRepository.deleteById(testCaseId);
+    }
+
+    public List<TestCase> getAllTestCasesFromFolderAndSubfolders(Long folderId) {
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid folder ID"));
+
+        List<TestCase> allTestCases = new ArrayList<>();
+        collectTestCases(folder, allTestCases);
+
+        return allTestCases;
+    }
+
+    private void collectTestCases(Folder folder, List<TestCase> testCases) {
+        // Добавляем все тест-кейсы текущей папки
+        testCases.addAll(folder.getTestCases());
+
+        // Рекурсивно обходим все дочерние папки
+        if (folder.getChildFolders() != null) {
+            for (Folder childFolder : folder.getChildFolders()) {
+                collectTestCases(childFolder, testCases);
+            }
+        }
     }
 
 

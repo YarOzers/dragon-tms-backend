@@ -70,4 +70,10 @@ public class TestCaseController {
         testCaseService.deleteTestCase(testCaseId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/folder/{folderId}/all")
+    public ResponseEntity<List<TestCase>> getAllTestCases(@PathVariable Long folderId) {
+        List<TestCase> testCases = testCaseService.getAllTestCasesFromFolderAndSubfolders(folderId);
+        return ResponseEntity.ok(testCases);
+    }
 }
