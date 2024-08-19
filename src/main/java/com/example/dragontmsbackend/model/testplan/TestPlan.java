@@ -3,6 +3,7 @@ package com.example.dragontmsbackend.model.testplan;
 import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.model.user.User;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Entity
 @Data
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class TestPlan {
 
     @Id

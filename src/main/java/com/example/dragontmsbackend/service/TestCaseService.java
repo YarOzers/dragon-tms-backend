@@ -1,8 +1,7 @@
 package com.example.dragontmsbackend.service;
 
 import com.example.dragontmsbackend.model.folder.Folder;
-import com.example.dragontmsbackend.model.testcase.TestCase;
-import com.example.dragontmsbackend.model.testcase.TestCaseData;
+import com.example.dragontmsbackend.model.testcase.*;
 import com.example.dragontmsbackend.repository.FolderRepository;
 import com.example.dragontmsbackend.repository.TestCaseRepository;
 import com.example.dragontmsbackend.repository.UserRepository;
@@ -34,7 +33,37 @@ public class TestCaseService {
     public TestCase addTestCaseToFolder(Long folderId, TestCase testCase) {
         Folder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid folder ID"));
+
         testCase.setFolder(folder);
+
+        // Устанавливаем связь TestCase с каждым объектом TestCaseData
+        if (testCase.getData() != null) {
+            for (TestCaseData data : testCase.getData()) {
+                data.setTestCase(testCase);
+
+                // Устанавливаем связь TestCaseData с каждым preConditionItem
+                if (data.getPreConditionItems() != null) {
+                    for (TestCasePreCondition preCondition : data.getPreConditionItems()) {
+                        preCondition.setTestCaseData(data);
+                    }
+                }
+
+                // Устанавливаем связь TestCaseData с каждым stepItem
+                if (data.getStepItems() != null) {
+                    for (TestCaseStep step : data.getStepItems()) {
+                        step.setTestCaseData(data);
+                    }
+                }
+
+                // Устанавливаем связь TestCaseData с каждым postConditionItem
+                if (data.getPostConditionItems() != null) {
+                    for (TestCasePostCondition postCondition : data.getPostConditionItems()) {
+                        postCondition.setTestCaseData(data);
+                    }
+                }
+            }
+        }
+
         return testCaseRepository.save(testCase);
     }
 
@@ -78,7 +107,7 @@ public class TestCaseService {
         newTestCase.setType(originalTestCase.getType());
         newTestCase.setAutomationFlag(originalTestCase.getAutomationFlag());
         newTestCase.setFolder(targetFolder);
-        newTestCase.setUser(originalTestCase.getUser());
+//        newTestCase.setUser(originalTestCase.getUser());
 
         // Копирование данных тест-кейса
         for (TestCaseData data : originalTestCase.getData()) {

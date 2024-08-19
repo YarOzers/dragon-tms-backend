@@ -4,7 +4,9 @@ import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.model.testcase.TestCase;
 import com.example.dragontmsbackend.model.testplan.TestPlan;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -12,6 +14,7 @@ import java.util.List;
 
 @Entity
 @Data
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Folder {
 
 
@@ -24,12 +27,10 @@ public class Folder {
     // Отношение "многие к одному" для родительской папки
     @ManyToOne
     @JoinColumn(name = "parent_folder_id")
-    @JsonBackReference // родительская папка не будет сериализована при сериализации дочерней
     private Folder parentFolder;
 
     // Отношение "один ко многим" для дочерних папок
     @OneToMany(mappedBy = "parentFolder", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // дочерние папки будут сериализованы
     private List<Folder> childFolders;
 
     // Отношение "один ко многим" для тест-кейсов
@@ -47,7 +48,6 @@ public class Folder {
 
     @ManyToOne
     @JoinColumn(name = "project_id")
-    @JsonBackReference // проект не будет сериализован при сериализации папки
     private Project project;
 
     @Transient

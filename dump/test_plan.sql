@@ -1,0 +1,1 @@
+INSERT INTO public.test_plan (test_case_count, author_id, created_date, finish_date, id, project_id, start_date, name, status) VALUES (1, 1, '2024-08-19 14:05:28.000000', '2024-08-19 14:05:31.000000', 1, 1, '2024-08-18 14:05:40.000000', 'Тест план 1', 'FINISHED');

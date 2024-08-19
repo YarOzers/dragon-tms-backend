@@ -1,0 +1,1 @@
+INSERT INTO public.test_case (is_new, is_running, last_data_index, loading, selected, folder_id, id, user_id, automation_flag, name, type) VALUES (true, false, 0, false, false, 1, 1, 1, 'AUTO', 'Название', 'TESTCASE');

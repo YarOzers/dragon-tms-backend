@@ -13,6 +13,7 @@ public class TestCasePostCondition {
     @Id
     @GeneratedValue
     private Long id;
+    private int index;
     private boolean selected;
     private String action;
     private String expectedResult;

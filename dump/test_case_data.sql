@@ -1,0 +1,1 @@
+INSERT INTO public.test_case_data (version, changes_author_id, created_date, execution_time, expected_execution_time, id, test_case_id, automation_flag, name, priority, status, type) VALUES (1, 1, '2024-08-19 13:53:46.000000', '2024-08-19 13:53:53.000000', '2024-08-19 13:53:57.000000', 1, 1, 'AUTO', 'Новое имя тест-кейса', 'HIGHEST', 'READY', 'FUNCTIONAL');

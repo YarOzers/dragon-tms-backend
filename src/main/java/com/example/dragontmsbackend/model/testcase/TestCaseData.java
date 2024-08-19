@@ -26,8 +26,8 @@ public class TestCaseData {
     private User changesAuthor;
 
     private LocalDateTime createdDate;
-    private LocalDateTime executionTime;
-    private LocalDateTime expectedExecutionTime;
+    private String executionTime;
+    private String expectedExecutionTime;
 
     private String name;
 
