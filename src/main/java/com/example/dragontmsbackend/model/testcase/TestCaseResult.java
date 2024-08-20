@@ -1,5 +1,6 @@
 package com.example.dragontmsbackend.model.testcase;
 
+import com.example.dragontmsbackend.model.testplan.TestPlan;
 import com.example.dragontmsbackend.model.user.User;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -22,7 +23,10 @@ public class TestCaseResult {
 
     private LocalDateTime executedTime;
     private Result result;
-    private int testPlanId;
+
+    @ManyToOne
+    @JoinColumn(name = "test_plan_id")
+    private TestPlan testPlan;
 
     @ManyToOne
     @JoinColumn(name = "test_case_id", nullable = false)

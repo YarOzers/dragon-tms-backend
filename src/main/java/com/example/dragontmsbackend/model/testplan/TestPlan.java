@@ -2,6 +2,7 @@ package com.example.dragontmsbackend.model.testplan;
 
 import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.model.project.Project;
+import com.example.dragontmsbackend.model.testcase.TestCase;
 import com.example.dragontmsbackend.model.user.User;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
@@ -51,6 +52,15 @@ public class TestPlan {
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
+
+    // Новая связь с тест-кейсами
+    @ManyToMany
+    @JoinTable(
+            name = "test_plan_test_cases",
+            joinColumns = @JoinColumn(name = "test_plan_id"),
+            inverseJoinColumns = @JoinColumn(name = "test_case_id")
+    )
+    private List<TestCase> testCases;
 
     // Метод, который автоматически устанавливает дату создания перед сохранением
     @PrePersist
