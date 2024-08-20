@@ -2,12 +2,10 @@ package com.example.dragontmsbackend.model.testcase;
 
 import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.model.user.User;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +29,8 @@ public class TestCase {
 
     @ManyToOne
     @JoinColumn(name = "folder_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
+//    @JsonIdentityReference(alwaysAsId = true)  // Сериализация только как folderId
     private Folder folder;
 
 //    @ManyToOne
@@ -43,7 +42,9 @@ public class TestCase {
 
     private int lastDataIndex;
 
+
     private boolean loading;
+
     private boolean isNew;
 
     @OneToMany(mappedBy = "testCase", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -51,4 +52,20 @@ public class TestCase {
 
     private boolean selected;
     private boolean isRunning;
+
+    public boolean getLoading() {
+        return this.loading;
+    }
+
+    public boolean getIsNew(){
+        return  this.isNew;
+    }
+
+    public boolean getSelected(){
+        return this.selected;
+    }
+
+    public boolean getIsRunning(){
+        return this.isRunning;
+    }
 }

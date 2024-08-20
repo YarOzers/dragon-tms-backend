@@ -1,6 +1,6 @@
 package com.example.dragontmsbackend.controller;
 
-import com.example.dragontmsbackend.dto.ProjectDTO;
+import com.example.dragontmsbackend.model.project.ProjectDTO;
 import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.service.ProjectService;
 import org.springframework.http.ResponseEntity;

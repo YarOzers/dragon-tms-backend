@@ -3,10 +3,7 @@ package com.example.dragontmsbackend.model.folder;
 import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.model.testcase.TestCase;
 import com.example.dragontmsbackend.model.testplan.TestPlan;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -14,7 +11,7 @@ import java.util.List;
 
 @Entity
 @Data
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Folder {
 
 
@@ -27,15 +24,18 @@ public class Folder {
     // Отношение "многие к одному" для родительской папки
     @ManyToOne
     @JoinColumn(name = "parent_folder_id")
+    @JsonBackReference
     private Folder parentFolder;
 
     // Отношение "один ко многим" для дочерних папок
     @OneToMany(mappedBy = "parentFolder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Folder> childFolders;
 
     // Отношение "один ко многим" для тест-кейсов
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "folder_id") // внешний ключ в таблице TestCase
+    @JsonManagedReference
     private List<TestCase> testCases;
 
     // Тип папки

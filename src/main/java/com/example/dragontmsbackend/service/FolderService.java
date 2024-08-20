@@ -1,6 +1,6 @@
 package com.example.dragontmsbackend.service;
 
-import com.example.dragontmsbackend.dto.FolderDTO;
+import com.example.dragontmsbackend.model.folder.FolderDTO;
 import com.example.dragontmsbackend.exception.ResourceNotFoundException;
 import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.model.project.Project;

@@ -1,4 +1,4 @@
-package com.example.dragontmsbackend.dto;
+package com.example.dragontmsbackend.model.project;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;

@@ -1,6 +1,6 @@
 package com.example.dragontmsbackend.service;
 
-import com.example.dragontmsbackend.dto.UserDTO;
+import com.example.dragontmsbackend.model.user.UserDTO;
 import com.example.dragontmsbackend.model.user.User;
 import com.example.dragontmsbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package com.example.dragontmsbackend.controller;
 
 
-import com.example.dragontmsbackend.dto.UserDTO;
+import com.example.dragontmsbackend.model.user.UserDTO;
 import com.example.dragontmsbackend.model.user.User;
 import com.example.dragontmsbackend.service.UserService;
 import org.springframework.http.ResponseEntity;

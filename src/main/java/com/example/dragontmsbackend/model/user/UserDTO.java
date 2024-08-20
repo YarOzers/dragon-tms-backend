@@ -1,4 +1,4 @@
-package com.example.dragontmsbackend.dto;
+package com.example.dragontmsbackend.model.user;
 
 import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.model.testcase.TestCase;

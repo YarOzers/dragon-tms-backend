@@ -1,7 +1,7 @@
 package com.example.dragontmsbackend.controller;
 
 
-import com.example.dragontmsbackend.dto.FolderDTO;
+import com.example.dragontmsbackend.model.folder.FolderDTO;
 import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.service.FolderService;
 import com.example.dragontmsbackend.service.ProjectService;
