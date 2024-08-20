@@ -38,6 +38,7 @@ public class Project {
     private List<Folder> folders;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<TestPlan> testPlans;
 
     private LocalDateTime createdDate;

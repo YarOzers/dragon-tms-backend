@@ -51,6 +51,7 @@ public class TestPlan {
 
     @ManyToOne
     @JoinColumn(name = "project_id")
+    @JsonBackReference
     private Project project;
 
     // Новая связь с тест-кейсами
