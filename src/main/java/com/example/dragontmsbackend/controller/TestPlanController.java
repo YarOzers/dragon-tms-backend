@@ -1,6 +1,7 @@
 package com.example.dragontmsbackend.controller;
 
 
+import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.model.testcase.Result;
 import com.example.dragontmsbackend.model.testcase.TestCaseResult;
 import com.example.dragontmsbackend.model.testplan.TestPlan;
@@ -22,6 +23,20 @@ public class TestPlanController {
     @Autowired
     public TestPlanController(TestPlanService testPlanService) {
         this.testPlanService = testPlanService;
+    }
+
+    // Метод для получения всех тест-планов проекта по ID проекта
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<List<TestPlan>> getTestPlansByProjectId(@PathVariable Long projectId) {
+        List<TestPlan> testPlans = testPlanService.getTestPlansByProjectId(projectId);
+        return ResponseEntity.ok(testPlans);
+    }
+
+    // Метод для получения всех папок определенного тест-плана по ID тест-плана
+    @GetMapping("/{testPlanId}/folders")
+    public ResponseEntity<List<Folder>> getFoldersByTestPlanId(@PathVariable Long testPlanId) {
+        List<Folder> folders = testPlanService.getFoldersByTestPlanId(testPlanId);
+        return ResponseEntity.ok(folders);
     }
 
     // Метод для создания нового тест-плана

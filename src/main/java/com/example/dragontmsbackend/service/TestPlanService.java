@@ -42,6 +42,22 @@ public class TestPlanService {
         this.projectRepository = projectRepository;
     }
 
+    // Метод для получения всех тест-планов проекта по ID проекта
+    public List<TestPlan> getTestPlansByProjectId(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Project ID"));
+
+        return testPlanRepository.findByProject(project);
+    }
+
+    // Метод для получения всех папок определенного тест-плана по ID тест-плана
+    public List<Folder> getFoldersByTestPlanId(Long testPlanId) {
+        TestPlan testPlan = testPlanRepository.findById(testPlanId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Test Plan ID"));
+
+        return folderRepository.findByTestPlan(testPlan);
+    }
+
     // Метод для создания нового тест-плана
     public TestPlan createTestPlan(String name, Long userId, Long projectId) {
         User user = userRepository.findById(userId)

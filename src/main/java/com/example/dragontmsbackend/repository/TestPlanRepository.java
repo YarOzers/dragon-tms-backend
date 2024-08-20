@@ -1,5 +1,6 @@
 package com.example.dragontmsbackend.repository;
 
+import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.model.testcase.TestCase;
 import com.example.dragontmsbackend.model.testplan.TestPlan;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,5 +10,7 @@ import java.util.List;
 
 @Repository
 public interface TestPlanRepository extends JpaRepository<TestPlan, Long> {
+
+    List<TestPlan> findByProject(Project project);
 
 }
