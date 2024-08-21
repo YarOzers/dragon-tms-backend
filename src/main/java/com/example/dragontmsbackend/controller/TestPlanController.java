@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/testplans")
@@ -32,11 +33,16 @@ public class TestPlanController {
         return ResponseEntity.ok(testPlans);
     }
 
-    // Метод для получения всех папок определенного тест-плана по ID тест-плана
-    @GetMapping("/{testPlanId}/folders")
-    public ResponseEntity<List<Folder>> getFoldersByTestPlanId(@PathVariable Long testPlanId) {
-        List<Folder> folders = testPlanService.getFoldersByTestPlanId(testPlanId);
-        return ResponseEntity.ok(folders);
+    @GetMapping("/{testPlanId}")
+    public ResponseEntity<TestPlan> getTestPlan(
+            @PathVariable Long testPlanId
+    ) {
+        Optional<TestPlan> testPlan = testPlanService.getTestPlan(testPlanId);
+        if (testPlan.isPresent()) {
+            return ResponseEntity.ok(testPlan.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Метод для создания нового тест-плана
@@ -57,40 +63,20 @@ public class TestPlanController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{testPlanId}/add-test-cases")
-    public ResponseEntity<TestPlan> addTestCasesToTestPlan(
+    // Метод для получения структуры папок с тест-кейсами, указанными в тест-плане
+    @GetMapping("/{testPlanId}/folders")
+    public ResponseEntity<Folder> getFoldersForTestCasesInTestPlan(@PathVariable Long testPlanId) {
+        Folder folders = testPlanService.getFoldersForTestCasesInTestPlan(testPlanId);
+        return ResponseEntity.ok(folders);
+    }
+
+    // Метод для добавления ID тест-кейсов в тест-план
+    @PostMapping("/{testPlanId}/test-cases")
+    public ResponseEntity<String> addTestCaseIdsToTestPlan(
             @PathVariable Long testPlanId,
             @RequestBody List<Long> testCaseIds) {
-
-        TestPlan testPlan = testPlanService.addTestCasesToTestPlan(testPlanId, testCaseIds);
-        return ResponseEntity.ok(testPlan);
+        testPlanService.addTestCaseIdsToTestPlan(testPlanId, testCaseIds);
+        return ResponseEntity.ok("Test case IDs added successfully");
     }
 
-    @GetMapping("/{testPlanId}")
-    public ResponseEntity<TestPlan> getTestPlanWithFoldersAndTestCases(@PathVariable Long testPlanId) {
-        TestPlan testPlan = testPlanService.getTestPlanWithFoldersAndTestCases(testPlanId);
-        return ResponseEntity.ok(testPlan);
-    }
-
-    // Метод для удаления тест-кейсов из тест-плана
-    @PostMapping("/{testPlanId}/remove-test-cases")
-    public ResponseEntity<TestPlan> removeTestCasesFromTestPlan(
-            @PathVariable Long testPlanId,
-            @RequestBody List<Long> testCaseIds) {
-
-        TestPlan testPlan = testPlanService.removeTestCasesFromTestPlan(testPlanId, testCaseIds);
-        return ResponseEntity.ok(testPlan);
-    }
-
-    // Метод для присвоения результата тест-кейсу
-    @PostMapping("/{testPlanId}/test-cases/{testCaseId}/assign-result")
-    public ResponseEntity<TestCaseResult> assignResultToTestCase(
-            @PathVariable Long testPlanId,
-            @PathVariable Long testCaseId,
-            @RequestParam Long userId,
-            @RequestParam Result result) {
-
-        TestCaseResult testCaseResult = testPlanService.assignResultToTestCase(testCaseId, testPlanId, userId, result);
-        return ResponseEntity.ok(testCaseResult);
-    }
 }

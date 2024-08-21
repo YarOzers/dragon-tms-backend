@@ -14,7 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class TestPlanService {
@@ -84,74 +87,12 @@ public class TestPlanService {
         testPlanRepository.delete(testPlan);
     }
 
-    public TestPlan addTestCasesToTestPlan(Long testPlanId, List<Long> testCaseIds) {
-        TestPlan testPlan = testPlanRepository.findById(testPlanId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid Test Plan ID"));
-
-        for (Long testCaseId : testCaseIds) {
-            TestCase testCase = testCaseRepository.findById(testCaseId)
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid Test Case ID"));
-
-            // Найти папку, в которой находится тест-кейс
-            Folder folder = testCase.getFolder();
-
-            // Если папка еще не добавлена в тест-план, добавляем ее, сохраняя иерархию
-            if (!testPlan.getFolders().contains(folder)) {
-                addFolderWithHierarchyToTestPlan(folder, testPlan);
-            }
-
-            // Добавляем тест-кейс в тест-план, если он еще не добавлен
-            if (!folder.getTestCases().contains(testCase)) {
-                folder.getTestCases().add(testCase);
-            }
-        }
-
-        return testPlanRepository.save(testPlan);
-    }
-
-    private void addFolderWithHierarchyToTestPlan(Folder folder, TestPlan testPlan) {
-        // Если у папки есть родительская папка, рекурсивно добавляем её
-        if (folder.getParentFolder() != null) {
-            addFolderWithHierarchyToTestPlan(folder.getParentFolder(), testPlan);
-        }
-
-        // Добавляем папку в тест-план, если она еще не добавлена
-        if (!testPlan.getFolders().contains(folder)) {
-            folder.setTestPlan(testPlan);
-            testPlan.getFolders().add(folder);
-        }
-    }
 
     public TestPlan getTestPlanWithFoldersAndTestCases(Long testPlanId) {
         return testPlanRepository.findById(testPlanId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Test Plan ID"));
     }
 
-    // Метод для удаления тест-кейсов из тест-плана
-    public TestPlan removeTestCasesFromTestPlan(Long testPlanId, List<Long> testCaseIds) {
-        TestPlan testPlan = testPlanRepository.findById(testPlanId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid Test Plan ID"));
-
-        for (Long testCaseId : testCaseIds) {
-            TestCase testCase = testCaseRepository.findById(testCaseId)
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid Test Case ID"));
-
-            Folder folder = testCase.getFolder();
-
-            // Удаляем тест-кейс из папки, если он существует
-            if (folder.getTestCases().contains(testCase)) {
-                folder.getTestCases().remove(testCase);
-            }
-
-            // Если папка осталась пустой и нет дочерних папок, удаляем её из тест-плана
-            if (folder.getTestCases().isEmpty() && folder.getChildFolders().isEmpty()) {
-                testPlan.getFolders().remove(folder);
-                folder.setTestPlan(null);
-            }
-        }
-
-        return testPlanRepository.save(testPlan);
-    }
 
     // Метод для присвоения результата тест-кейсу с указанием тест-плана
     public TestCaseResult assignResultToTestCase(Long testCaseId, Long testPlanId, Long userId, Result result) {
@@ -171,5 +112,60 @@ public class TestPlanService {
         testCaseResult.setResult(result);
 
         return testCaseResultRepository.save(testCaseResult);
+    }
+
+    // Метод для получения структуры папок с тест-кейсами, указанными в тест-плане
+    public Folder getFoldersForTestCasesInTestPlan(Long testPlanId) {
+        TestPlan testPlan = testPlanRepository.findById(testPlanId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Test Plan ID"));
+
+        List<Long> testCaseIds = testPlan.getTestCaseIds();
+
+        // Получаем тест-кейсы по их ID
+        List<TestCase> testCases = testCaseRepository.findAllById(testCaseIds);
+
+        // Создаем карту для отслеживания папок
+        Map<Long, Folder> folderMap = new HashMap<>();
+
+        for (TestCase testCase : testCases) {
+            Folder folder = testCase.getFolder();
+
+            // Поднимаемся по иерархии папок, добавляя их в карту
+            while (folder != null) {
+                if (!folderMap.containsKey(folder.getId())) {
+                    folderMap.put(folder.getId(), folder);
+                }
+                folder = folder.getParentFolder(); // Переходим к родительской папке
+            }
+        }
+
+        // Устанавливаем тест-кейсы в соответствующие папки
+        for (TestCase testCase : testCases) {
+            Folder folder = folderMap.get(testCase.getFolder().getId());
+            folder.getTestCases().add(testCase);
+        }
+
+        // Возвращаем корневую папку, содержащую все вложенные папки и тест-кейсы
+        return folderMap.values().stream()
+                .filter(folder -> folder.getParentFolder() == null)
+                .findFirst()
+                .orElse(null);
+    }
+
+    // Метод для добавления ID тест-кейсов в тест-план
+    public void addTestCaseIdsToTestPlan(Long testPlanId, List<Long> testCaseIds) {
+        // Получаем тест-план по ID
+        TestPlan testPlan = testPlanRepository.findById(testPlanId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Test Plan ID"));
+
+        // Добавляем новые ID тест-кейсов в существующий список
+        testPlan.getTestCaseIds().addAll(testCaseIds);
+
+        // Сохраняем обновленный тест-план
+        testPlanRepository.save(testPlan);
+    }
+
+    public Optional<TestPlan> getTestPlan(Long testPlanId) {
+        return this.testPlanRepository.findById(testPlanId);
     }
 }

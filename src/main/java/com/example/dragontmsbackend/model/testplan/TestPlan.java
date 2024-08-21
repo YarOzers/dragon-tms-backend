@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -45,10 +46,11 @@ public class TestPlan {
     )
     private List<User> qas;
 
-    // Связь с папками
-    @OneToMany(mappedBy = "testPlan", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "testplan_folder")
-    private List<Folder> folders;
+
+
+    @ElementCollection
+    private List<Long> testCaseIds = new ArrayList<>();
+
 
     @ManyToOne
     @JoinColumn(name = "project_id")

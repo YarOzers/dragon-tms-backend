@@ -12,7 +12,6 @@ public class TestPlanMapper {
         testPlanDTO.setTestCaseCount(testPlan.getTestCaseCount());
         testPlanDTO.setStatus(testPlan.getStatus());
         testPlanDTO.setQas(testPlan.getQas());
-        testPlanDTO.setFolders(testPlan.getFolders());
         testPlanDTO.setProject(testPlan.getProject());
         testPlanDTO.setTestCases(testPlan.getTestCases());
         return testPlanDTO;
