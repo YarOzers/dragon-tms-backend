@@ -24,18 +24,18 @@ public class Folder {
     // Отношение "многие к одному" для родительской папки
     @ManyToOne
     @JoinColumn(name = "parent_folder_id")
-    @JsonBackReference
+    @JsonBackReference(value = "child_parent_folder")
     private Folder parentFolder;
 
     // Отношение "один ко многим" для дочерних папок
     @OneToMany(mappedBy = "parentFolder", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference(value = "child_parent_folder")
     private List<Folder> childFolders;
 
     // Отношение "один ко многим" для тест-кейсов
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "folder_id") // внешний ключ в таблице TestCase
-    @JsonManagedReference
+    @JsonManagedReference(value = "folder_testcases")
     private List<TestCase> testCases;
 
     // Тип папки
@@ -44,10 +44,12 @@ public class Folder {
     // Связь с тестовым планом
     @ManyToOne
     @JoinColumn(name = "test_plan_id")
+    @JsonBackReference(value = "testplan_folder")
     private TestPlan testPlan;
 
     @ManyToOne
     @JoinColumn(name = "project_id")
+    @JsonBackReference(value = "project_folder")
     private Project project;
 
     @Transient

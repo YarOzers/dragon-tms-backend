@@ -47,6 +47,7 @@ public class TestPlan {
 
     // Связь с папками
     @OneToMany(mappedBy = "testPlan", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "testplan_folder")
     private List<Folder> folders;
 
     @ManyToOne

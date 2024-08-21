@@ -29,7 +29,7 @@ public class TestCase {
 
     @ManyToOne
     @JoinColumn(name = "folder_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "folder_testcases")
 //    @JsonIdentityReference(alwaysAsId = true)  // Сериализация только как folderId
     private Folder folder;
 
