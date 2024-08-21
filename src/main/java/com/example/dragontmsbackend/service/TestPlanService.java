@@ -142,7 +142,11 @@ public class TestPlanService {
         // Устанавливаем тест-кейсы в соответствующие папки
         for (TestCase testCase : testCases) {
             Folder folder = folderMap.get(testCase.getFolder().getId());
-            folder.getTestCases().add(testCase);
+
+            // Проверяем, добавлен ли тест-кейс уже в папку
+            if (!folder.getTestCases().contains(testCase)) {
+                folder.getTestCases().add(testCase);
+            }
         }
 
         // Возвращаем корневую папку, содержащую все вложенные папки и тест-кейсы
