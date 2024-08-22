@@ -14,10 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TestPlanService {
@@ -114,11 +112,12 @@ public class TestPlanService {
         return testCaseResultRepository.save(testCaseResult);
     }
 
-    // Метод для получения структуры папок с тест-кейсами, указанными в тест-плане
     public Folder getFoldersForTestCasesInTestPlan(Long testPlanId) {
+        // Получаем тест-план по ID
         TestPlan testPlan = testPlanRepository.findById(testPlanId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Test Plan ID"));
 
+        // Получаем список ID тест-кейсов, которые должны быть включены
         List<Long> testCaseIds = testPlan.getTestCaseIds();
 
         // Получаем тест-кейсы по их ID
@@ -127,33 +126,90 @@ public class TestPlanService {
         // Создаем карту для отслеживания папок
         Map<Long, Folder> folderMap = new HashMap<>();
 
+        // Проходим по тест-кейсам и добавляем их в соответствующие папки
         for (TestCase testCase : testCases) {
             Folder folder = testCase.getFolder();
 
             // Поднимаемся по иерархии папок, добавляя их в карту
-            while (folder != null) {
-                if (!folderMap.containsKey(folder.getId())) {
-                    folderMap.put(folder.getId(), folder);
-                }
-                folder = folder.getParentFolder(); // Переходим к родительской папке
-            }
+            buildFolderHierarchy(folder, folderMap);
         }
 
         // Устанавливаем тест-кейсы в соответствующие папки
         for (TestCase testCase : testCases) {
             Folder folder = folderMap.get(testCase.getFolder().getId());
-
-            // Проверяем, добавлен ли тест-кейс уже в папку
-            if (!folder.getTestCases().contains(testCase)) {
+            if (folder != null) {
                 folder.getTestCases().add(testCase);
             }
         }
 
-        // Возвращаем корневую папку, содержащую все вложенные папки и тест-кейсы
-        return folderMap.values().stream()
+        // Фильтруем пустые папки
+        return filterEmptyFolders(folderMap);
+    }
+
+    // Метод для рекурсивного построения иерархии папок
+    private void buildFolderHierarchy(Folder folder, Map<Long, Folder> folderMap) {
+        if (folder == null || folderMap.containsKey(folder.getId())) {
+            return;
+        }
+
+        // Копируем папку в карту
+        Folder newFolder = new Folder();
+        newFolder.setId(folder.getId());
+        newFolder.setName(folder.getName());
+        newFolder.setChildFolders(new ArrayList<>());
+        newFolder.setTestCases(new ArrayList<>());
+
+        folderMap.put(folder.getId(), newFolder);
+
+        // Рекурсивно добавляем родительскую папку
+        Folder parentFolder = folder.getParentFolder();
+        if (parentFolder != null) {
+            buildFolderHierarchy(parentFolder, folderMap);
+            Folder parentInMap = folderMap.get(parentFolder.getId());
+            parentInMap.getChildFolders().add(newFolder);
+            newFolder.setParentFolder(parentInMap);
+        }
+    }
+
+    // Метод для фильтрации пустых папок
+    private Folder filterEmptyFolders(Map<Long, Folder> folderMap) {
+        // Находим корневую папку по отсутствию родительской папки
+        Folder rootFolder = folderMap.values().stream()
                 .filter(folder -> folder.getParentFolder() == null)
                 .findFirst()
                 .orElse(null);
+
+        if (rootFolder == null) {
+            System.out.println("Root folder not found.");
+            return null;
+        }
+
+        // Рекурсивная очистка пустых папок
+        pruneEmptyFolders(rootFolder);
+
+        return rootFolder;
+    }
+
+    // Метод для рекурсивной очистки пустых папок
+    private boolean pruneEmptyFolders(Folder folder) {
+        // Рекурсивно проверяем дочерние папки на наличие тест-кейсов
+        List<Folder> childFolders = folder.getChildFolders();
+        List<Folder> nonEmptyChildFolders = new ArrayList<>();
+
+        boolean hasTestCases = !folder.getTestCases().isEmpty();
+
+        for (Folder childFolder : childFolders) {
+            if (pruneEmptyFolders(childFolder)) {
+                nonEmptyChildFolders.add(childFolder);
+                hasTestCases = true; // Устанавливаем, что родительская папка не пуста
+            }
+        }
+
+        // Устанавливаем только непустые дочерние папки
+        folder.setChildFolders(nonEmptyChildFolders);
+
+        // Возвращаем true, если папка содержит тест-кейсы или непустые дочерние папки
+        return hasTestCases;
     }
 
     // Метод для добавления ID тест-кейсов в тест-план
