@@ -2,9 +2,10 @@ package com.example.dragontmsbackend.service;
 
 import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.model.testcase.*;
-import com.example.dragontmsbackend.repository.FolderRepository;
-import com.example.dragontmsbackend.repository.TestCaseRepository;
-import com.example.dragontmsbackend.repository.UserRepository;
+import com.example.dragontmsbackend.model.testplan.TestPlan;
+import com.example.dragontmsbackend.repository.*;
+import jakarta.persistence.EntityNotFoundException;
+import org.aspectj.weaver.ast.Test;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,10 +21,15 @@ public class TestCaseService {
 
     private final UserRepository userRepository;
 
-    public TestCaseService(TestCaseRepository testCaseRepository, FolderRepository folderRepository, UserRepository userRepository) {
+    private final TestCaseResultRepository testCaseResultRepository;
+    private final TestPlanRepository testPlanRepository;
+
+    public TestCaseService(TestCaseRepository testCaseRepository, FolderRepository folderRepository, UserRepository userRepository, TestCaseResultRepository testCaseResultRepository, TestPlanRepository testPlanRepository) {
         this.testCaseRepository = testCaseRepository;
         this.folderRepository = folderRepository;
         this.userRepository = userRepository;
+        this.testCaseResultRepository = testCaseResultRepository;
+        this.testPlanRepository = testPlanRepository;
     }
 
     public List<TestCase> getTestCasesInFolder(Folder folder) {
@@ -162,5 +168,29 @@ public class TestCaseService {
         }
     }
 
+    public TestCase setTestCaseResult(Long testCaseId, TestCaseResult testCaseResult) {
+        TestCase testCase = testCaseRepository.findById(testCaseId)
+                .orElseThrow(() -> new EntityNotFoundException("TestCase not found with ID: " + testCaseId));
+
+        // Получение объекта TestPlan из переданного ID
+        Long testPlanId = testCaseResult.getTestPlanId();
+        if (testPlanId != null) {
+            TestPlan testPlan = testPlanRepository.findById(testPlanId)
+                    .orElseThrow(() -> new EntityNotFoundException("TestPlan not found with ID: " + testPlanId));
+            testCaseResult.setTestPlan(testPlan);
+        }
+
+        // Установить связь между TestCase и TestCaseResult
+        testCaseResult.setTestCase(testCase);
+
+        // Сохранить TestCaseResult в репозиторий
+        testCaseResultRepository.save(testCaseResult);
+
+        // Сохранить изменения в TestCase
+        testCase.getResults().add(testCaseResult);
+        testCaseRepository.save(testCase);
+
+        return testCase;
+    }
 
 }

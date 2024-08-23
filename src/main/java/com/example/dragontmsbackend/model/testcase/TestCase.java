@@ -48,6 +48,7 @@ public class TestCase {
     private boolean isNew;
 
     @OneToMany(mappedBy = "testCase", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "testcase_result")
     private List<TestCaseResult> results;
 
     private boolean selected;

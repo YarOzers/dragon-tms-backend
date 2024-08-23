@@ -4,7 +4,10 @@ package com.example.dragontmsbackend.controller;
 import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.model.testcase.TestCase;
 import com.example.dragontmsbackend.model.testcase.TestCaseData;
+import com.example.dragontmsbackend.model.testcase.TestCaseResult;
 import com.example.dragontmsbackend.service.TestCaseService;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -75,5 +78,17 @@ public class TestCaseController {
     public ResponseEntity<List<TestCase>> getAllTestCases(@PathVariable Long folderId) {
         List<TestCase> testCases = testCaseService.getAllTestCasesFromFolderAndSubfolders(folderId);
         return ResponseEntity.ok(testCases);
+    }
+
+    @PostMapping("/setresult/{testCaseId}")
+    public ResponseEntity<?> setTestCaseResult(@PathVariable Long testCaseId, @RequestBody TestCaseResult testCaseResult) {
+        try {
+            TestCase testCase = testCaseService.setTestCaseResult(testCaseId, testCaseResult);
+            return ResponseEntity.status(HttpStatus.CREATED).body(testCase);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("TestCase not found with ID: " + testCaseId);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+        }
     }
 }

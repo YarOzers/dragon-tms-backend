@@ -91,27 +91,6 @@ public class TestPlanService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Test Plan ID"));
     }
 
-
-    // Метод для присвоения результата тест-кейсу с указанием тест-плана
-    public TestCaseResult assignResultToTestCase(Long testCaseId, Long testPlanId, Long userId, Result result) {
-        TestCase testCase = testCaseRepository.findById(testCaseId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid Test Case ID"));
-
-        TestPlan testPlan = testPlanRepository.findById(testPlanId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid Test Plan ID"));
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid User ID"));
-
-        TestCaseResult testCaseResult = new TestCaseResult();
-        testCaseResult.setTestCase(testCase);
-        testCaseResult.setTestPlan(testPlan);
-        testCaseResult.setUser(user);
-        testCaseResult.setResult(result);
-
-        return testCaseResultRepository.save(testCaseResult);
-    }
-
     public Folder getFoldersForTestCasesInTestPlan(Long testPlanId) {
         // Получаем тест-план по ID
         TestPlan testPlan = testPlanRepository.findById(testPlanId)

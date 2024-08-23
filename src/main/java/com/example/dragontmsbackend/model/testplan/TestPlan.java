@@ -3,6 +3,7 @@ package com.example.dragontmsbackend.model.testplan;
 import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.model.testcase.TestCase;
+import com.example.dragontmsbackend.model.testcase.TestCaseResult;
 import com.example.dragontmsbackend.model.user.User;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
@@ -65,6 +66,10 @@ public class TestPlan {
             inverseJoinColumns = @JoinColumn(name = "test_case_id")
     )
     private List<TestCase> testCases;
+
+    @OneToMany(mappedBy = "testPlan")
+//    @JsonBackReference(value = "result_testplan")
+    private List<TestCaseResult> testCaseResults;
 
     // Метод, который автоматически устанавливает дату создания перед сохранением
     @PrePersist
