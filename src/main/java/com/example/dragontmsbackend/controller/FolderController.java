@@ -69,7 +69,7 @@ public class FolderController {
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteFolder(@RequestParam Long folderId){
         try {
-            this.folderService.deleteFolderAndContents(folderId);
+            this.folderService.deleteFolderAndMoveTestCasesToTrash(folderId);
             return ResponseEntity.ok("Папка с id='" + folderId +"' и все ее содержимое было удалено!");
         } catch (RuntimeException e){
             e.printStackTrace();

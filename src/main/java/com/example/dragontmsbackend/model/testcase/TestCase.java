@@ -29,7 +29,7 @@ public class TestCase {
     private AutomationFlag automationFlag;
 
     @ManyToOne
-    @JoinColumn(name = "folder_id", nullable = false)
+    @JoinColumn(name = "folder_id", nullable = true)
     @JsonBackReference(value = "folder_testcases")
     private Folder folder;
 

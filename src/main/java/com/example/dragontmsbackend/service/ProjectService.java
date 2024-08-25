@@ -54,8 +54,14 @@ public class ProjectService {
         folder.setName(project.getName());
         folder.setType(Type.FOLDER);
 
+        Folder trash = new Folder();
+        trash.setProject(projectFromDB);
+        trash.setName("Корзина");
+        trash.setType(Type.FOLDER);
+
         List<Folder> folders = new ArrayList<>();
         folders.add(folder);
+        folders.add(trash);
 
         if (projectFromDB.getFolders() == null || projectFromDB.getFolders().isEmpty()){
             System.out.println("Create add folder in project id " +projectFromDB.getId());

@@ -8,6 +8,7 @@ import com.example.dragontmsbackend.model.testcase.TestCase;
 import com.example.dragontmsbackend.repository.FolderRepository;
 import com.example.dragontmsbackend.repository.ProjectRepository;
 import com.example.dragontmsbackend.repository.TestCaseRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class FolderService {
 
     private static final Logger logger = LoggerFactory.getLogger(FolderService.class);
@@ -229,29 +231,51 @@ public class FolderService {
     }
 
     @Transactional
-    public void deleteFolderAndContents(Long folderId) {
-        Folder folder = folderRepository.findById(folderId)
+    public void deleteFolderAndMoveTestCasesToTrash(Long folderId) {
+
+
+        // Находим папку, которую нужно удалить
+        Folder folderToDelete = folderRepository.findById(folderId)
                 .orElseThrow(() -> new RuntimeException("Folder not found with ID: " + folderId));
 
-        // Удаляем все тест-кейсы в этой папке
-//        testCaseRepository.deleteAllByFolder(folder);
+        // Получаем проект, к которому принадлежит удаляемая папка
+        Project project = folderToDelete.getProject();
 
-        // Удаляем все дочерние папки рекурсивно
-        deleteChildFolders(folder);
+        // Ищем папку "Корзина" в этом проекте
+        Folder trashFolder = folderRepository.findByNameAndProject("Корзина", project)
+                .orElseThrow(() -> new ResourceNotFoundException("Trash folder not found in project " + project.getName()));
 
-        // Теперь удаляем саму папку
-        folderRepository.delete(folder);
+        // Перемещаем тест-кейсы и тест-кейсы в дочерних папках
+        moveTestCasesToTrash(folderToDelete, trashFolder);
+
+        // Явно сохраняем изменения после перемещения тест-кейсов
+        testCaseRepository.flush(); // Применяем изменения в базе данных
+
+        // Шаг 3: Удаление дочерних папок и папки
+        deleteChildFolders(folderToDelete);
+
+        // Удаление самой папки
+//        folderRepository.delete(folderToDelete);
+    }
+
+    private void moveTestCasesToTrash(Folder folderToDelete, Folder trashFolder) {
+        // Перемещаем все тест-кейсы из папки в "Корзину"
+        for (TestCase testCase : folderToDelete.getTestCases()) {
+            testCase.setFolder(trashFolder); // Устанавливаем папку "Корзина"
+            testCaseRepository.save(testCase); // Сохраняем изменения в базе данных
+            log.info("Перемещаем тест-кейс {} в папку Корзина", testCase.getId());
+        }
+
+        // Рекурсивно перемещаем тест-кейсы из всех дочерних папок
+        for (Folder childFolder : folderToDelete.getChildFolders()) {
+            moveTestCasesToTrash(childFolder, trashFolder);
+        }
     }
 
     private void deleteChildFolders(Folder parentFolder) {
+        // Рекурсивно удаляем все дочерние папки
         for (Folder childFolder : parentFolder.getChildFolders()) {
-            // Удаляем все тест-кейсы в дочерних папках
-            testCaseRepository.deleteAllByFolder(childFolder);
-
-            // Рекурсивно удаляем дочерние папки
             deleteChildFolders(childFolder);
-
-            // Удаляем дочернюю папку
             folderRepository.delete(childFolder);
         }
     }
