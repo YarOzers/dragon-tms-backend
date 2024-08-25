@@ -243,8 +243,16 @@ public class FolderService {
 
         // Ищем папку "Корзина" в этом проекте
         Folder trashFolder = folderRepository.findByNameAndProject("Корзина", project)
-                .orElseThrow(() -> new ResourceNotFoundException("Trash folder not found in project " + project.getName()));
-
+                .orElseGet(() -> {
+                    // Если папка "Корзина" не найдена, создаем её
+                    Folder newTrashFolder = new Folder();
+                    newTrashFolder.setName("Корзина");
+                    newTrashFolder.setProject(project);
+                    newTrashFolder.setParentFolder(null); // Папка "Корзина" на верхнем уровне
+                    folderRepository.save(newTrashFolder);
+                    log.info("Создана новая папка 'Корзина' в проекте {}", project.getName());
+                    return newTrashFolder;
+                });
         // Перемещаем тест-кейсы и тест-кейсы в дочерних папках
         moveTestCasesToTrash(folderToDelete, trashFolder);
 
