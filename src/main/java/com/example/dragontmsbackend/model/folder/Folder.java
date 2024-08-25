@@ -36,7 +36,7 @@ public class Folder {
     private List<Folder> childFolders;
 
     // Отношение "один ко многим" для тест-кейсов
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany  //(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "folder_id") // внешний ключ в таблице TestCase
     @JsonManagedReference(value = "folder_testcases")
 

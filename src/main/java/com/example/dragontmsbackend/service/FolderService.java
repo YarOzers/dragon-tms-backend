@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -233,7 +234,6 @@ public class FolderService {
     @Transactional
     public void deleteFolderAndMoveTestCasesToTrash(Long folderId) {
 
-
         // Находим папку, которую нужно удалить
         Folder folderToDelete = folderRepository.findById(folderId)
                 .orElseThrow(() -> new RuntimeException("Folder not found with ID: " + folderId));
@@ -248,17 +248,16 @@ public class FolderService {
         // Перемещаем тест-кейсы и тест-кейсы в дочерних папках
         moveTestCasesToTrash(folderToDelete, trashFolder);
 
-        // Явно сохраняем изменения после перемещения тест-кейсов
-        testCaseRepository.flush(); // Применяем изменения в базе данных
+        // Выполняем сохранение всех перемещенных тест-кейсов
+        testCaseRepository.flush(); // Это применяет все изменения в базе данных и завершает перемещение
 
-        // Шаг 3: Удаление дочерних папок и папки
-        deleteChildFolders(folderToDelete);
-
-        // Удаление самой папки
-//        folderRepository.delete(folderToDelete);
+        // Теперь безопасно удаляем папки после завершения перемещения тест-кейсов
+        deleteChildFolders(folderToDelete); // Удаляем дочерние папки
+        folderRepository.delete(folderToDelete);  // Удаление самой папки
     }
 
     private void moveTestCasesToTrash(Folder folderToDelete, Folder trashFolder) {
+        log.info("moveTestCasesToTrash");
         // Перемещаем все тест-кейсы из папки в "Корзину"
         for (TestCase testCase : folderToDelete.getTestCases()) {
             testCase.setFolder(trashFolder); // Устанавливаем папку "Корзина"
@@ -273,6 +272,7 @@ public class FolderService {
     }
 
     private void deleteChildFolders(Folder parentFolder) {
+        log.info("deleteChildFolders");
         // Рекурсивно удаляем все дочерние папки
         for (Folder childFolder : parentFolder.getChildFolders()) {
             deleteChildFolders(childFolder);
