@@ -7,6 +7,7 @@ import com.example.dragontmsbackend.service.FolderService;
 import com.example.dragontmsbackend.service.ProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,6 +63,17 @@ public class FolderController {
         } catch (RuntimeException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteFolder(@RequestParam Long folderId){
+        try {
+            this.folderService.deleteFolder(folderId);
+            return ResponseEntity.ok("Папка с id='" + folderId +"' удалена!");
+        } catch (RuntimeException e){
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Ошибка при удалении папки");
         }
     }
 }

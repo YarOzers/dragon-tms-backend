@@ -159,7 +159,7 @@ public class FolderService {
         return false;
     }
 
-//    private void copyChildFolders(Folder sourceFolder, Folder copiedFolder) {
+    //    private void copyChildFolders(Folder sourceFolder, Folder copiedFolder) {
 //        List<Folder> childFolders = sourceFolder.getChildFolders();
 //
 //        if (childFolders != null) {
@@ -179,48 +179,55 @@ public class FolderService {
 //            }
 //        }
 //    }
- //Копирование дочерних папок с префиксом (Копия)
-private void copyChildFolders(Folder sourceFolder, Folder copiedFolder) {
-    List<Folder> childFolders = sourceFolder.getChildFolders();
+    //Копирование дочерних папок с префиксом (Копия)
+    private void copyChildFolders(Folder sourceFolder, Folder copiedFolder) {
+        List<Folder> childFolders = sourceFolder.getChildFolders();
 
-    if (childFolders != null) {
-        for (Folder child : childFolders) {
-            Folder copiedChild = new Folder();
-            copiedChild.setName("Копия " + child.getName());
-            copiedChild.setParentFolder(copiedFolder);
-            copiedChild.setType(child.getType());
-            copiedChild.setTestPlan(child.getTestPlan());
-            copiedChild.setProject(child.getProject());
+        if (childFolders != null) {
+            for (Folder child : childFolders) {
+                Folder copiedChild = new Folder();
+                copiedChild.setName("Копия " + child.getName());
+                copiedChild.setParentFolder(copiedFolder);
+                copiedChild.setType(child.getType());
+                copiedChild.setTestPlan(child.getTestPlan());
+                copiedChild.setProject(child.getProject());
 
-            // Копирование тест-кейсов с префиксом "Копия"
-            List<TestCase> copiedTestCases = new ArrayList<>();
-            for (TestCase testCase : child.getTestCases()) {
-                TestCase copiedTestCase = new TestCase();
-                copiedTestCase.setName("Копия " + testCase.getName());
-                copiedTestCase.setType(testCase.getType());
-                copiedTestCase.setAutomationFlag(testCase.getAutomationFlag());
-                copiedTestCase.setFolder(copiedChild);
-                copiedTestCase.setData(new ArrayList<>(testCase.getData()));
-                copiedTestCase.setLastDataIndex(testCase.getLastDataIndex());
-                copiedTestCase.setLoading(testCase.getLoading());
-                copiedTestCase.setNew(testCase.isNew());
-                copiedTestCase.setSelected(testCase.getSelected());
-                copiedTestCase.setRunning(testCase.isRunning());
+                // Копирование тест-кейсов с префиксом "Копия"
+                List<TestCase> copiedTestCases = new ArrayList<>();
+                for (TestCase testCase : child.getTestCases()) {
+                    TestCase copiedTestCase = new TestCase();
+                    copiedTestCase.setName("Копия " + testCase.getName());
+                    copiedTestCase.setType(testCase.getType());
+                    copiedTestCase.setAutomationFlag(testCase.getAutomationFlag());
+                    copiedTestCase.setFolder(copiedChild);
+                    copiedTestCase.setData(new ArrayList<>(testCase.getData()));
+                    copiedTestCase.setLastDataIndex(testCase.getLastDataIndex());
+                    copiedTestCase.setLoading(testCase.getLoading());
+                    copiedTestCase.setNew(testCase.isNew());
+                    copiedTestCase.setSelected(testCase.getSelected());
+                    copiedTestCase.setRunning(testCase.isRunning());
 
-                copiedTestCases.add(copiedTestCase);
+                    copiedTestCases.add(copiedTestCase);
+                }
+                copiedChild.setTestCases(copiedTestCases);
+
+                // Проверка и инициализация списка дочерних папок
+                if (copiedFolder.getChildFolders() == null) {
+                    copiedFolder.setChildFolders(new ArrayList<>());
+                }
+
+                copiedFolder.getChildFolders().add(copiedChild);
+
+                // Рекурсивное копирование для дочерних папок
+                copyChildFolders(child, copiedChild);
             }
-            copiedChild.setTestCases(copiedTestCases);
-
-            // Проверка и инициализация списка дочерних папок
-            if (copiedFolder.getChildFolders() == null) {
-                copiedFolder.setChildFolders(new ArrayList<>());
-            }
-
-            copiedFolder.getChildFolders().add(copiedChild);
-
-            // Рекурсивное копирование для дочерних папок
-            copyChildFolders(child, copiedChild);
         }
     }
-}
+
+    public void deleteFolder(Long folderId) {
+        Folder folder = this.folderRepository.findById(folderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Папка с id " + folderId + " не найдена"));
+
+        this.folderRepository.delete(folder);
+    }
 }
