@@ -11,10 +11,10 @@ public class TestCaseMapper {
                 testCase.getAutomationFlag(),
                 testCase.getData().stream().map(TestCaseDataMapper::toDTO).collect(Collectors.toList()),
                 testCase.getLoading(),
-                testCase.getIsNew(),
+                testCase.isNew(),
                 testCase.getResults(),
                 testCase.getSelected(),
-                testCase.getIsRunning()
+                testCase.isRunning()
         );
     }
 

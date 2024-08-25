@@ -53,19 +53,19 @@ public class TestCaseController {
         return ResponseEntity.ok(updatedTestCase);
     }
 
-    // Перемещение тест-кейса в другую папку
-    @PutMapping("/{testCaseId}/move/{targetFolderId}")
-    public ResponseEntity<TestCase> moveTestCase(@PathVariable Long testCaseId, @PathVariable Long targetFolderId) {
-        TestCase movedTestCase = testCaseService.moveTestCase(testCaseId, targetFolderId);
-        return ResponseEntity.ok(movedTestCase);
-    }
-
-    // Копирование тест-кейса
-    @PostMapping("/{testCaseId}/copy/{targetFolderId}")
-    public ResponseEntity<TestCase> copyTestCase(@PathVariable Long testCaseId, @PathVariable Long targetFolderId) {
-        TestCase copiedTestCase = testCaseService.copyTestCase(testCaseId, targetFolderId);
-        return ResponseEntity.ok(copiedTestCase);
-    }
+//    // Перемещение тест-кейса в другую папку
+//    @PutMapping("/{testCaseId}/move/{targetFolderId}")
+//    public ResponseEntity<TestCase> moveTestCase(@PathVariable Long testCaseId, @PathVariable Long targetFolderId) {
+//        TestCase movedTestCase = testCaseService.moveTestCase(testCaseId, targetFolderId);
+//        return ResponseEntity.ok(movedTestCase);
+//    }
+//
+//    // Копирование тест-кейса
+//    @PostMapping("/{testCaseId}/copy/{targetFolderId}")
+//    public ResponseEntity<TestCase> copyTestCase(@PathVariable Long testCaseId, @PathVariable Long targetFolderId) {
+//        TestCase copiedTestCase = testCaseService.copyTestCase(testCaseId, targetFolderId);
+//        return ResponseEntity.ok(copiedTestCase);
+//    }
 
     // Удаление тест-кейса
     @DeleteMapping("/{testCaseId}")
@@ -89,6 +89,26 @@ public class TestCaseController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("TestCase not found with ID: " + testCaseId);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+        }
+    }
+
+    @PutMapping("/move")
+    public ResponseEntity<TestCase> moveTestCase(@RequestParam Long testCaseId, @RequestParam Long targetFolderId) {
+        try {
+            TestCase movedTestCase = testCaseService.moveTestCase(testCaseId, targetFolderId);
+            return ResponseEntity.ok(movedTestCase);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PostMapping("/copy")
+    public ResponseEntity<TestCase> copyTestCase(@RequestParam Long testCaseId, @RequestParam Long targetFolderId) {
+        try {
+            TestCase copiedTestCase = testCaseService.copyTestCase(testCaseId, targetFolderId);
+            return ResponseEntity.ok(copiedTestCase);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
         }
     }
 }

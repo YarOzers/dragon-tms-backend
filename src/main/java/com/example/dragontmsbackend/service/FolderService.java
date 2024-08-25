@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,5 +60,130 @@ public class FolderService {
         logger.info("Child folder '{}' successfully added to parent folder with ID '{}'", folderDTO.getName(), parentFolderId);
 
         return childFolder;
+    }
+
+
+    public Folder moveFolder(Long folderId, Long targetFolderId) {
+        Optional<Folder> folderOpt = folderRepository.findById(folderId);
+        Optional<Folder> targetFolderOpt = folderRepository.findById(targetFolderId);
+
+        if (folderOpt.isPresent() && targetFolderOpt.isPresent()) {
+            Folder folder = folderOpt.get();
+            Folder targetFolder = targetFolderOpt.get();
+
+            // Проверка: нельзя переместить папку в саму себя
+            if (folder.getId().equals(targetFolder.getId())) {
+                throw new IllegalArgumentException("Cannot move a folder into itself.");
+            }
+
+            // Проверка: нельзя переместить родительскую папку в дочерние папки
+            if (isChildFolder(folder, targetFolder)) {
+                throw new IllegalArgumentException("Cannot move a parent folder into its child folder.");
+            }
+
+            // Проверка: нельзя переместить корневую папку в дочерние папки
+            if (folder.getParentFolder() == null && targetFolder.getParentFolder() != null) {
+                throw new IllegalArgumentException("Cannot move a root folder into a subfolder.");
+            }
+
+            // Устанавливаем новую родительскую папку
+            folder.setParentFolder(targetFolder);
+
+            return folderRepository.save(folder);
+        }
+
+        throw new RuntimeException("Folder or target folder not found");
+    }
+
+
+    // Копирование папки, создается новая папка с префиксом (Копия)
+    public Folder copyFolder(Long folderId, Long targetFolderId) {
+        Optional<Folder> folderOpt = folderRepository.findById(folderId);
+        Optional<Folder> targetFolderOpt = folderRepository.findById(targetFolderId);
+
+
+
+        if (folderOpt.isPresent() && targetFolderOpt.isPresent()) {
+            Folder folder = folderOpt.get();
+            Folder targetFolder = targetFolderOpt.get();
+
+            // Проверка: нельзя копировать папку в саму себя
+            if (folder.getId().equals(targetFolder.getId())) {
+                throw new IllegalArgumentException("Cannot copy a folder into itself.");
+            }
+
+
+            // Клонируем папку
+            Folder copiedFolder = new Folder();
+            // Добавляем префикс "Копия" к имени папки
+            copiedFolder.setName("Копия " + folder.getName());
+            copiedFolder.setParentFolder(targetFolder);
+            copiedFolder.setType(folder.getType());
+            copiedFolder.setTestPlan(folder.getTestPlan());
+            copiedFolder.setProject(folder.getProject());
+            // Копируем тест-кейсы
+            copiedFolder.setTestCases(folder.getTestCases());
+
+            // Рекурсивное копирование дочерних папок
+            copyChildFolders(folder, copiedFolder);
+
+            return folderRepository.save(copiedFolder);
+        }
+
+        throw new RuntimeException("Folder or target folder not found");
+    }
+
+    private boolean isChildFolder(Folder parentFolder, Folder potentialChild) {
+        Folder current = potentialChild;
+        while (current != null) {
+            if (current.getId().equals(parentFolder.getId())) {
+                return true;
+            }
+            current = current.getParentFolder();
+        }
+        return false;
+    }
+
+//    private void copyChildFolders(Folder sourceFolder, Folder copiedFolder) {
+//        List<Folder> childFolders = sourceFolder.getChildFolders();
+//
+//        if (childFolders != null) {
+//            for (Folder child : childFolders) {
+//                Folder copiedChild = new Folder();
+//                copiedChild.setName(child.getName());
+//                copiedChild.setParentFolder(copiedFolder);
+//                copiedChild.setType(child.getType());
+//                copiedChild.setTestPlan(child.getTestPlan());
+//                copiedChild.setProject(child.getProject());
+//                copiedChild.setTestCases(child.getTestCases());
+//
+//                copiedFolder.getChildFolders().add(copiedChild);
+//
+//                // Рекурсивное копирование для дочерних папок
+//                copyChildFolders(child, copiedChild);
+//            }
+//        }
+//    }
+ //Копирование дочерних папок с префиксом (Копия)
+    private void copyChildFolders(Folder sourceFolder, Folder copiedFolder) {
+        List<Folder> childFolders = sourceFolder.getChildFolders();
+
+        if (childFolders != null) {
+            for (Folder child : childFolders) {
+                Folder copiedChild = new Folder();
+                // Добавляем префикс "Копия" к имени дочерней папки
+                copiedChild.setName("Копия " + child.getName());
+                copiedChild.setParentFolder(copiedFolder);
+                copiedChild.setType(child.getType());
+                copiedChild.setTestPlan(child.getTestPlan());
+                copiedChild.setProject(child.getProject());
+                copiedChild.setTestCases(child.getTestCases());
+
+                copiedFolder.getChildFolders().add(copiedChild);
+
+                // Рекурсивное копирование для дочерних папок
+                copyChildFolders(child, copiedChild);
+            }
+        }
     }
 }

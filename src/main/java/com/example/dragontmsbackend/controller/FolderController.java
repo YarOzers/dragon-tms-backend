@@ -42,4 +42,25 @@ public class FolderController {
         Folder newFolder = folderService.addChildFolder(parentFolderId, folderDTO);
         return ResponseEntity.status(201).body(newFolder);
     }
+
+    @PutMapping("/move")
+    public ResponseEntity<Folder> moveFolder(@RequestParam Long folderId, @RequestParam Long targetFolderId) {
+        try {
+            Folder movedFolder = folderService.moveFolder(folderId, targetFolderId);
+            return ResponseEntity.ok(movedFolder);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PostMapping("/copy")
+    public ResponseEntity<Folder> copyFolder(@RequestParam Long folderId, @RequestParam Long targetFolderId) {
+        try {
+            Folder copiedFolder = folderService.copyFolder(folderId, targetFolderId);
+            return ResponseEntity.ok(copiedFolder);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 }

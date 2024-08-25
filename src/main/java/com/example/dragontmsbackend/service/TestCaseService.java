@@ -5,7 +5,6 @@ import com.example.dragontmsbackend.model.testcase.*;
 import com.example.dragontmsbackend.model.testplan.TestPlan;
 import com.example.dragontmsbackend.repository.*;
 import jakarta.persistence.EntityNotFoundException;
-import org.aspectj.weaver.ast.Test;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,49 +92,49 @@ public class TestCaseService {
         return testCaseRepository.save(testCase);
     }
 
-    // Перемещение тест-кейса из одной папки в другую
-    @Transactional
-    public TestCase moveTestCase(Long testCaseId, Long targetFolderId) {
-        TestCase testCase = testCaseRepository.findById(testCaseId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid test case ID"));
+//    // Перемещение тест-кейса из одной папки в другую
+//    @Transactional
+//    public TestCase moveTestCase(Long testCaseId, Long targetFolderId) {
+//        TestCase testCase = testCaseRepository.findById(testCaseId)
+//                .orElseThrow(() -> new IllegalArgumentException("Invalid test case ID"));
+//
+//        Folder targetFolder = folderRepository.findById(targetFolderId)
+//                .orElseThrow(() -> new IllegalArgumentException("Invalid folder ID"));
+//
+//        testCase.setFolder(targetFolder);
+//        return testCaseRepository.save(testCase);
+//    }
 
-        Folder targetFolder = folderRepository.findById(targetFolderId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid folder ID"));
-
-        testCase.setFolder(targetFolder);
-        return testCaseRepository.save(testCase);
-    }
-
-    // Копирование тест-кейса (в ту же или другую папку)
-    @Transactional
-    public TestCase copyTestCase(Long testCaseId, Long targetFolderId) {
-        TestCase originalTestCase = testCaseRepository.findById(testCaseId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid test case ID"));
-
-        Folder targetFolder = folderRepository.findById(targetFolderId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid folder ID"));
-
-        TestCase newTestCase = new TestCase();
-        newTestCase.setName(originalTestCase.getName());
-        newTestCase.setType(originalTestCase.getType());
-        newTestCase.setAutomationFlag(originalTestCase.getAutomationFlag());
-        newTestCase.setFolder(targetFolder);
-//        newTestCase.setUser(originalTestCase.getUser());
-
-        // Копирование данных тест-кейса
-        for (TestCaseData data : originalTestCase.getData()) {
-            TestCaseData newTestCaseData = new TestCaseData();
-            newTestCaseData.setTestCase(newTestCase);
-            newTestCaseData.setName(data.getName());
-            newTestCaseData.setAutomationFlag(data.getAutomationFlag());
-            newTestCaseData.setPriority(data.getPriority());
-            newTestCaseData.setTestCaseType(data.getTestCaseType());
-            newTestCaseData.setStatus(data.getStatus());
-            newTestCase.getData().add(newTestCaseData);
-        }
-
-        return testCaseRepository.save(newTestCase);
-    }
+//    // Копирование тест-кейса (в ту же или другую папку)
+//    @Transactional
+//    public TestCase copyTestCase(Long testCaseId, Long targetFolderId) {
+//        TestCase originalTestCase = testCaseRepository.findById(testCaseId)
+//                .orElseThrow(() -> new IllegalArgumentException("Invalid test case ID"));
+//
+//        Folder targetFolder = folderRepository.findById(targetFolderId)
+//                .orElseThrow(() -> new IllegalArgumentException("Invalid folder ID"));
+//
+//        TestCase newTestCase = new TestCase();
+//        newTestCase.setName(originalTestCase.getName());
+//        newTestCase.setType(originalTestCase.getType());
+//        newTestCase.setAutomationFlag(originalTestCase.getAutomationFlag());
+//        newTestCase.setFolder(targetFolder);
+////        newTestCase.setUser(originalTestCase.getUser());
+//
+//        // Копирование данных тест-кейса
+//        for (TestCaseData data : originalTestCase.getData()) {
+//            TestCaseData newTestCaseData = new TestCaseData();
+//            newTestCaseData.setTestCase(newTestCase);
+//            newTestCaseData.setName(data.getName());
+//            newTestCaseData.setAutomationFlag(data.getAutomationFlag());
+//            newTestCaseData.setPriority(data.getPriority());
+//            newTestCaseData.setTestCaseType(data.getTestCaseType());
+//            newTestCaseData.setStatus(data.getStatus());
+//            newTestCase.getData().add(newTestCaseData);
+//        }
+//
+//        return testCaseRepository.save(newTestCase);
+//    }
 
     // Удаление тест-кейса
     @Transactional
@@ -191,6 +190,51 @@ public class TestCaseService {
         testCaseRepository.save(testCase);
 
         return testCase;
+    }
+
+    public TestCase moveTestCase(Long testCaseId, Long targetFolderId) {
+        Optional<TestCase> testCaseOpt = testCaseRepository.findById(testCaseId);
+        Optional<Folder> targetFolderOpt = folderRepository.findById(targetFolderId);
+
+        if (testCaseOpt.isPresent() && targetFolderOpt.isPresent()) {
+            TestCase testCase = testCaseOpt.get();
+            Folder targetFolder = targetFolderOpt.get();
+
+            // Устанавливаем новую папку для тест-кейса
+            testCase.setFolder(targetFolder);
+
+            return testCaseRepository.save(testCase);
+        }
+
+        throw new RuntimeException("TestCase or target folder not found");
+    }
+
+    public TestCase copyTestCase(Long testCaseId, Long targetFolderId) {
+        Optional<TestCase> testCaseOpt = testCaseRepository.findById(testCaseId);
+        Optional<Folder> targetFolderOpt = folderRepository.findById(targetFolderId);
+
+        if (testCaseOpt.isPresent() && targetFolderOpt.isPresent()) {
+            TestCase testCase = testCaseOpt.get();
+            Folder targetFolder = targetFolderOpt.get();
+
+            // Создаем копию тест-кейса
+            TestCase copiedTestCase = new TestCase();
+            copiedTestCase.setName("(Копия) " + testCase.getName());
+            copiedTestCase.setType(testCase.getType());
+            copiedTestCase.setAutomationFlag(testCase.getAutomationFlag());
+            copiedTestCase.setFolder(targetFolder);
+            copiedTestCase.setData(new ArrayList<>(testCase.getData()));
+            copiedTestCase.setLastDataIndex(testCase.getLastDataIndex());
+            copiedTestCase.setLoading(testCase.getLoading());
+            copiedTestCase.setNew(testCase.isNew());
+            copiedTestCase.setSelected(testCase.getSelected());
+            copiedTestCase.setRunning(testCase.isRunning());
+            copiedTestCase.setResults(new ArrayList<>(testCase.getResults()));
+
+            return testCaseRepository.save(copiedTestCase);
+        }
+
+        throw new RuntimeException("TestCase or target folder not found");
     }
 
 }
