@@ -7,6 +7,7 @@ import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.model.testcase.TestCase;
 import com.example.dragontmsbackend.repository.FolderRepository;
 import com.example.dragontmsbackend.repository.ProjectRepository;
+import com.example.dragontmsbackend.repository.TestCaseRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,14 @@ public class FolderService {
 
     private static final Logger logger = LoggerFactory.getLogger(FolderService.class);
     private final FolderRepository folderRepository;
-    public final ProjectRepository projectRepository;
+    private final ProjectRepository projectRepository;
 
-    public FolderService(FolderRepository folderRepository, ProjectRepository projectRepository) {
+    private final TestCaseRepository testCaseRepository;
+
+    public FolderService(FolderRepository folderRepository, ProjectRepository projectRepository, TestCaseRepository testCaseRepository) {
         this.folderRepository = folderRepository;
         this.projectRepository = projectRepository;
+        this.testCaseRepository = testCaseRepository;
     }
 
     public List<Folder> getProjectFolders(Long projectId) {
@@ -224,10 +228,31 @@ public class FolderService {
         }
     }
 
-    public void deleteFolder(Long folderId) {
-        Folder folder = this.folderRepository.findById(folderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Папка с id " + folderId + " не найдена"));
+    @Transactional
+    public void deleteFolderAndContents(Long folderId) {
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new RuntimeException("Folder not found with ID: " + folderId));
 
-        this.folderRepository.delete(folder);
+        // Удаляем все тест-кейсы в этой папке
+//        testCaseRepository.deleteAllByFolder(folder);
+
+        // Удаляем все дочерние папки рекурсивно
+        deleteChildFolders(folder);
+
+        // Теперь удаляем саму папку
+        folderRepository.delete(folder);
+    }
+
+    private void deleteChildFolders(Folder parentFolder) {
+        for (Folder childFolder : parentFolder.getChildFolders()) {
+            // Удаляем все тест-кейсы в дочерних папках
+            testCaseRepository.deleteAllByFolder(childFolder);
+
+            // Рекурсивно удаляем дочерние папки
+            deleteChildFolders(childFolder);
+
+            // Удаляем дочернюю папку
+            folderRepository.delete(childFolder);
+        }
     }
 }

@@ -6,6 +6,8 @@ import com.example.dragontmsbackend.model.testplan.TestPlan;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.List;
 
@@ -30,12 +32,14 @@ public class Folder {
     // Отношение "один ко многим" для дочерних папок
     @OneToMany(mappedBy = "parentFolder", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "child_parent_folder")
+
     private List<Folder> childFolders;
 
     // Отношение "один ко многим" для тест-кейсов
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "folder_id") // внешний ключ в таблице TestCase
     @JsonManagedReference(value = "folder_testcases")
+
     private List<TestCase> testCases;
 
     // Тип папки

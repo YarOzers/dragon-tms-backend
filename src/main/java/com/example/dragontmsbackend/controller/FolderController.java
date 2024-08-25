@@ -69,11 +69,11 @@ public class FolderController {
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteFolder(@RequestParam Long folderId){
         try {
-            this.folderService.deleteFolder(folderId);
-            return ResponseEntity.ok("Папка с id='" + folderId +"' удалена!");
+            this.folderService.deleteFolderAndContents(folderId);
+            return ResponseEntity.ok("Папка с id='" + folderId +"' и все ее содержимое было удалено!");
         } catch (RuntimeException e){
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Ошибка при удалении папки");
+            return ResponseEntity.badRequest().body("Ошибка при удалении папки" + e.getMessage());
         }
     }
 }

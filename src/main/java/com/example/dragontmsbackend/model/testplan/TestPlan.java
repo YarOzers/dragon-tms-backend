@@ -69,6 +69,7 @@ public class TestPlan {
 
     @OneToMany(mappedBy = "testPlan")
 //    @JsonBackReference(value = "result_testplan")
+
     private List<TestCaseResult> testCaseResults;
 
     // Метод, который автоматически устанавливает дату создания перед сохранением

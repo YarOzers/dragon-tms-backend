@@ -69,9 +69,15 @@ public class TestCaseController {
 
     // Удаление тест-кейса
     @DeleteMapping("/{testCaseId}")
-    public ResponseEntity<Void> deleteTestCase(@PathVariable Long testCaseId) {
-        testCaseService.deleteTestCase(testCaseId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> deleteTestCase(@PathVariable Long testCaseId) {
+        try {
+            testCaseService.deleteTestCase(testCaseId);
+            return ResponseEntity.ok("Тест кейс с id='" + testCaseId + "' удален!");
+        }catch (RuntimeException e){
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Ошибка при удалении тест кейса");
+        }
+
     }
 
     @GetMapping("/folder/{folderId}/all")
