@@ -4,6 +4,7 @@ import com.example.dragontmsbackend.model.folder.FolderDTO;
 import com.example.dragontmsbackend.exception.ResourceNotFoundException;
 import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.model.project.Project;
+import com.example.dragontmsbackend.model.testcase.TestCase;
 import com.example.dragontmsbackend.repository.FolderRepository;
 import com.example.dragontmsbackend.repository.ProjectRepository;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -101,8 +103,6 @@ public class FolderService {
         Optional<Folder> folderOpt = folderRepository.findById(folderId);
         Optional<Folder> targetFolderOpt = folderRepository.findById(targetFolderId);
 
-
-
         if (folderOpt.isPresent() && targetFolderOpt.isPresent()) {
             Folder folder = folderOpt.get();
             Folder targetFolder = targetFolderOpt.get();
@@ -112,17 +112,32 @@ public class FolderService {
                 throw new IllegalArgumentException("Cannot copy a folder into itself.");
             }
 
-
             // Клонируем папку
             Folder copiedFolder = new Folder();
-            // Добавляем префикс "Копия" к имени папки
             copiedFolder.setName("Копия " + folder.getName());
             copiedFolder.setParentFolder(targetFolder);
             copiedFolder.setType(folder.getType());
             copiedFolder.setTestPlan(folder.getTestPlan());
             copiedFolder.setProject(folder.getProject());
-            // Копируем тест-кейсы
-            copiedFolder.setTestCases(folder.getTestCases());
+
+            // Создаем копии тест-кейсов с префиксом "Копия"
+            List<TestCase> copiedTestCases = new ArrayList<>();
+            for (TestCase testCase : folder.getTestCases()) {
+                TestCase copiedTestCase = new TestCase();
+                copiedTestCase.setName("Копия " + testCase.getName());
+                copiedTestCase.setType(testCase.getType());
+                copiedTestCase.setAutomationFlag(testCase.getAutomationFlag());
+                copiedTestCase.setFolder(copiedFolder);
+                copiedTestCase.setData(new ArrayList<>(testCase.getData()));  // Копируем данные тест-кейса
+                copiedTestCase.setLastDataIndex(testCase.getLastDataIndex());
+                copiedTestCase.setLoading(testCase.getLoading());
+                copiedTestCase.setNew(testCase.isNew());
+                copiedTestCase.setSelected(testCase.getSelected());
+                copiedTestCase.setRunning(testCase.isRunning());
+
+                copiedTestCases.add(copiedTestCase);
+            }
+            copiedFolder.setTestCases(copiedTestCases);
 
             // Рекурсивное копирование дочерних папок
             copyChildFolders(folder, copiedFolder);
@@ -165,25 +180,47 @@ public class FolderService {
 //        }
 //    }
  //Копирование дочерних папок с префиксом (Копия)
-    private void copyChildFolders(Folder sourceFolder, Folder copiedFolder) {
-        List<Folder> childFolders = sourceFolder.getChildFolders();
+private void copyChildFolders(Folder sourceFolder, Folder copiedFolder) {
+    List<Folder> childFolders = sourceFolder.getChildFolders();
 
-        if (childFolders != null) {
-            for (Folder child : childFolders) {
-                Folder copiedChild = new Folder();
-                // Добавляем префикс "Копия" к имени дочерней папки
-                copiedChild.setName("Копия " + child.getName());
-                copiedChild.setParentFolder(copiedFolder);
-                copiedChild.setType(child.getType());
-                copiedChild.setTestPlan(child.getTestPlan());
-                copiedChild.setProject(child.getProject());
-                copiedChild.setTestCases(child.getTestCases());
+    if (childFolders != null) {
+        for (Folder child : childFolders) {
+            Folder copiedChild = new Folder();
+            copiedChild.setName("Копия " + child.getName());
+            copiedChild.setParentFolder(copiedFolder);
+            copiedChild.setType(child.getType());
+            copiedChild.setTestPlan(child.getTestPlan());
+            copiedChild.setProject(child.getProject());
 
-                copiedFolder.getChildFolders().add(copiedChild);
+            // Копирование тест-кейсов с префиксом "Копия"
+            List<TestCase> copiedTestCases = new ArrayList<>();
+            for (TestCase testCase : child.getTestCases()) {
+                TestCase copiedTestCase = new TestCase();
+                copiedTestCase.setName("Копия " + testCase.getName());
+                copiedTestCase.setType(testCase.getType());
+                copiedTestCase.setAutomationFlag(testCase.getAutomationFlag());
+                copiedTestCase.setFolder(copiedChild);
+                copiedTestCase.setData(new ArrayList<>(testCase.getData()));
+                copiedTestCase.setLastDataIndex(testCase.getLastDataIndex());
+                copiedTestCase.setLoading(testCase.getLoading());
+                copiedTestCase.setNew(testCase.isNew());
+                copiedTestCase.setSelected(testCase.getSelected());
+                copiedTestCase.setRunning(testCase.isRunning());
 
-                // Рекурсивное копирование для дочерних папок
-                copyChildFolders(child, copiedChild);
+                copiedTestCases.add(copiedTestCase);
             }
+            copiedChild.setTestCases(copiedTestCases);
+
+            // Проверка и инициализация списка дочерних папок
+            if (copiedFolder.getChildFolders() == null) {
+                copiedFolder.setChildFolders(new ArrayList<>());
+            }
+
+            copiedFolder.getChildFolders().add(copiedChild);
+
+            // Рекурсивное копирование для дочерних папок
+            copyChildFolders(child, copiedChild);
         }
     }
+}
 }

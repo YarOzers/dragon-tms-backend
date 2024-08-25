@@ -49,6 +49,7 @@ public class FolderController {
             Folder movedFolder = folderService.moveFolder(folderId, targetFolderId);
             return ResponseEntity.ok(movedFolder);
         } catch (RuntimeException e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(null);
         }
     }
