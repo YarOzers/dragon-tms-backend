@@ -238,30 +238,36 @@ public class FolderService {
         Folder folderToDelete = folderRepository.findById(folderId)
                 .orElseThrow(() -> new RuntimeException("Folder not found with ID: " + folderId));
 
-        // Получаем проект, к которому принадлежит удаляемая папка
-        Project project = folderToDelete.getProject();
+        if(folderToDelete.isTrashFolder()){
+            log.info("Удаление тест-кейсов из корзины");
+            testCaseRepository.deleteAllByFolder(folderToDelete);
+        }else {
+            // Получаем проект, к которому принадлежит удаляемая папка
+            Project project = folderToDelete.getProject();
 
-        // Ищем папку "Корзина" в этом проекте
-        Folder trashFolder = folderRepository.findByNameAndProject("Корзина", project)
-                .orElseGet(() -> {
-                    // Если папка "Корзина" не найдена, создаем её
-                    Folder newTrashFolder = new Folder();
-                    newTrashFolder.setName("Корзина");
-                    newTrashFolder.setProject(project);
-                    newTrashFolder.setParentFolder(null); // Папка "Корзина" на верхнем уровне
-                    folderRepository.save(newTrashFolder);
-                    log.info("Создана новая папка 'Корзина' в проекте {}", project.getName());
-                    return newTrashFolder;
-                });
-        // Перемещаем тест-кейсы и тест-кейсы в дочерних папках
-        moveTestCasesToTrash(folderToDelete, trashFolder);
+            // Ищем папку "Корзина" в этом проекте
+            Folder trashFolder = folderRepository.findByProjectAndIsTrashFolderIsTrue(project)
+                    .orElseGet(() -> {
+                        // Если папка "Корзина" не найдена, создаем её
+                        Folder newTrashFolder = new Folder();
+                        newTrashFolder.setName("Корзина");
+                        newTrashFolder.setTrashFolder(true);
+                        newTrashFolder.setProject(project);
+                        newTrashFolder.setParentFolder(null); // Папка "Корзина" на верхнем уровне
+                        folderRepository.save(newTrashFolder);
+                        log.info("Создана новая папка 'Корзина' в проекте {}", project.getName());
+                        return newTrashFolder;
+                    });
+            // Перемещаем тест-кейсы и тест-кейсы в дочерних папках
+            moveTestCasesToTrash(folderToDelete, trashFolder);
 
-        // Выполняем сохранение всех перемещенных тест-кейсов
-        testCaseRepository.flush(); // Это применяет все изменения в базе данных и завершает перемещение
+            // Выполняем сохранение всех перемещенных тест-кейсов
+            testCaseRepository.flush(); // Это применяет все изменения в базе данных и завершает перемещение
 
-        // Теперь безопасно удаляем папки после завершения перемещения тест-кейсов
-        deleteChildFolders(folderToDelete); // Удаляем дочерние папки
-        folderRepository.delete(folderToDelete);  // Удаление самой папки
+            // Теперь безопасно удаляем папки после завершения перемещения тест-кейсов
+            deleteChildFolders(folderToDelete); // Удаляем дочерние папки
+            folderRepository.delete(folderToDelete);  // Удаление самой папки
+        }
     }
 
     private void moveTestCasesToTrash(Folder folderToDelete, Folder trashFolder) {
@@ -287,4 +293,5 @@ public class FolderService {
             folderRepository.delete(childFolder);
         }
     }
+
 }

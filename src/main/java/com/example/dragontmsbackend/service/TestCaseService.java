@@ -1,6 +1,7 @@
 package com.example.dragontmsbackend.service;
 
 import com.example.dragontmsbackend.model.folder.Folder;
+import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.model.testcase.*;
 import com.example.dragontmsbackend.model.testplan.TestPlan;
 import com.example.dragontmsbackend.repository.*;
@@ -22,13 +23,15 @@ public class TestCaseService {
 
     private final TestCaseResultRepository testCaseResultRepository;
     private final TestPlanRepository testPlanRepository;
+    private final ProjectRepository projectRepository;
 
-    public TestCaseService(TestCaseRepository testCaseRepository, FolderRepository folderRepository, UserRepository userRepository, TestCaseResultRepository testCaseResultRepository, TestPlanRepository testPlanRepository) {
+    public TestCaseService(TestCaseRepository testCaseRepository, FolderRepository folderRepository, UserRepository userRepository, TestCaseResultRepository testCaseResultRepository, TestPlanRepository testPlanRepository, ProjectRepository projectRepository) {
         this.testCaseRepository = testCaseRepository;
         this.folderRepository = folderRepository;
         this.userRepository = userRepository;
         this.testCaseResultRepository = testCaseResultRepository;
         this.testPlanRepository = testPlanRepository;
+        this.projectRepository = projectRepository;
     }
 
     public List<TestCase> getTestCasesInFolder(Folder folder) {
@@ -139,10 +142,19 @@ public class TestCaseService {
     // Удаление тест-кейса
     @Transactional
     public void deleteTestCase(Long testCaseId) {
-        if (!testCaseRepository.existsById(testCaseId)) {
-            throw new IllegalArgumentException("Invalid test case ID");
+
+        TestCase testCase = testCaseRepository.findById(testCaseId).orElseThrow(()->new EntityNotFoundException("Не найден тест кейс с id=" + testCaseId));
+        Folder folder = folderRepository.findByTestCases(testCase).orElseThrow(()-> new RuntimeException("Папка тест-кейса не найдена"));
+        if(folder.isTrashFolder()){
+            testCaseRepository.deleteById(testCaseId);
+        }else {
+            Project project = projectRepository.findByFolders(folder).orElseThrow(() -> new RuntimeException("Проект не найден"));
+            Folder trashFolder = folderRepository.findByProjectAndIsTrashFolderIsTrue(project).orElseThrow(() -> new RuntimeException("Корзина не найдена"));
+            testCase.setFolder(trashFolder);
+            if (!testCaseRepository.existsById(testCaseId)) {
+                throw new IllegalArgumentException("Invalid test case ID");
+            }
         }
-        testCaseRepository.deleteById(testCaseId);
     }
 
     public List<TestCase> getAllTestCasesFromFolderAndSubfolders(Long folderId) {

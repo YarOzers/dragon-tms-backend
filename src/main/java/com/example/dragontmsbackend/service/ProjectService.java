@@ -57,6 +57,7 @@ public class ProjectService {
         Folder trash = new Folder();
         trash.setProject(projectFromDB);
         trash.setName("Корзина");
+        trash.setTrashFolder(true);
         trash.setType(Type.FOLDER);
 
         List<Folder> folders = new ArrayList<>();

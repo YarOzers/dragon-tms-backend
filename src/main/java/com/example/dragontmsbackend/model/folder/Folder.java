@@ -4,10 +4,14 @@ import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.model.testcase.TestCase;
 import com.example.dragontmsbackend.model.testplan.TestPlan;
 import com.fasterxml.jackson.annotation.*;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.util.List;
 
@@ -56,6 +60,9 @@ public class Folder {
     @JoinColumn(name = "project_id")
     @JsonBackReference(value = "project_folder")
     private Project project;
+
+
+    private boolean isTrashFolder = false;
 
     @Transient
     private Long parentFolderId;
