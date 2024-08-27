@@ -6,21 +6,16 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TestCaseDTO {
-
+public class TestCaseCreateDTO {
     private Long id;
     private String name;
     private Type type;
     private AutomationFlag automationFlag;
     private List<TestCaseDataDTO> data;
-    private boolean loading;
     private boolean isNew;
     private List<TestCaseResultDTO> results;
-    private boolean selected;
-    private boolean isRunning;
 
 }

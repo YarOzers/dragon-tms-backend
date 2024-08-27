@@ -15,7 +15,11 @@ public class TestCasePreCondition {
     private Long id;
     private int index;
     private boolean selected;
+
+    @Column(columnDefinition = "TEXT")
     private String action;
+
+    @Column(columnDefinition = "TEXT")
     private String expectedResult;
 
     // Связь с TestCaseData

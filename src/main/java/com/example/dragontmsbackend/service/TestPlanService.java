@@ -209,4 +209,8 @@ public class TestPlanService {
     public TestPlan findById(Long testPlanId) {
         return  this.testPlanRepository.findById(testPlanId).orElseThrow(()-> new EntityNotFoundException("TestPlan not found " + testPlanId));
     }
+
+    public TestPlan getById(Long testPlanId) {
+        return this.testPlanRepository.findById(testPlanId).orElseThrow(()-> new NoSuchElementException("Nof found testPlan with id=" + testPlanId));
+    }
 }

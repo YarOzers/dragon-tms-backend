@@ -1,22 +1,12 @@
 package com.example.dragontmsbackend.model.folder;
 
-import com.example.dragontmsbackend.model.folder.Type;
-import com.example.dragontmsbackend.model.project.Project;
-import com.example.dragontmsbackend.model.testcase.TestCase;
-import com.example.dragontmsbackend.model.testcase.TestCaseDTO;
 import com.example.dragontmsbackend.model.testcase.TestCaseSummaryDTO;
-import com.example.dragontmsbackend.model.testplan.TestPlan;
-import com.example.dragontmsbackend.service.TestCaseService;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor

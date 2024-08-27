@@ -32,13 +32,13 @@ public class TestCaseData {
     private String name;
 
     @OneToMany(mappedBy = "testCaseData", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TestCasePreCondition> preConditionItems;
+    private List<TestCasePreCondition> preConditions;
 
     @OneToMany(mappedBy = "testCaseData", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TestCaseStep> stepItems;
+    private List<TestCaseStep> steps;
 
     @OneToMany(mappedBy = "testCaseData", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TestCasePostCondition> postConditionItems;
+    private List<TestCasePostCondition> postConditions;
 
     @Enumerated(EnumType.STRING)
     private Priority priority;

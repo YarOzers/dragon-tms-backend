@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -18,28 +19,30 @@ public class TestCaseService {
 
     private final TestCaseRepository testCaseRepository;
     private final FolderRepository folderRepository;
-
-    private final UserRepository userRepository;
-
     private final TestCaseResultRepository testCaseResultRepository;
     private final TestPlanRepository testPlanRepository;
     private final ProjectRepository projectRepository;
+    private final TestCaseCreateMapper testCaseCreateMapper;
 
-    public TestCaseService(TestCaseRepository testCaseRepository, FolderRepository folderRepository, UserRepository userRepository, TestCaseResultRepository testCaseResultRepository, TestPlanRepository testPlanRepository, ProjectRepository projectRepository) {
+    public TestCaseService(TestCaseRepository testCaseRepository, FolderRepository folderRepository, UserRepository userRepository, TestCaseResultRepository testCaseResultRepository, TestPlanRepository testPlanRepository, ProjectRepository projectRepository, TestCaseCreateMapper testCaseCreateMapper, TestCaseCreateMapper testCaseCreateMapper1) {
         this.testCaseRepository = testCaseRepository;
         this.folderRepository = folderRepository;
-        this.userRepository = userRepository;
         this.testCaseResultRepository = testCaseResultRepository;
         this.testPlanRepository = testPlanRepository;
         this.projectRepository = projectRepository;
+        this.testCaseCreateMapper = testCaseCreateMapper1;
     }
 
     public List<TestCase> getTestCasesInFolder(Folder folder) {
         return testCaseRepository.findTestCasesByFolder(folder);
     }
 
-    public Optional<TestCase> getTestCase(Long testCaseId){
-        return testCaseRepository.findById(testCaseId);
+    public TestCaseCreateDTO getTestCase(Long testCaseId){
+
+        TestCase testCase =  testCaseRepository.findById(testCaseId).orElseThrow(()-> new NoSuchElementException("Not fount testCase with id=" + testCaseId));
+        return testCaseCreateMapper.toDTO(testCase);
+
+
     }
 
     // Добавление тест-кейса в папку
@@ -57,22 +60,22 @@ public class TestCaseService {
                 data.setTestCase(testCase);
 
                 // Устанавливаем связь TestCaseData с каждым preConditionItem
-                if (data.getPreConditionItems() != null) {
-                    for (TestCasePreCondition preCondition : data.getPreConditionItems()) {
+                if (data.getPreConditions() != null) {
+                    for (TestCasePreCondition preCondition : data.getPreConditions()) {
                         preCondition.setTestCaseData(data);
                     }
                 }
 
                 // Устанавливаем связь TestCaseData с каждым stepItem
-                if (data.getStepItems() != null) {
-                    for (TestCaseStep step : data.getStepItems()) {
+                if (data.getSteps() != null) {
+                    for (TestCaseStep step : data.getSteps()) {
                         step.setTestCaseData(data);
                     }
                 }
 
                 // Устанавливаем связь TestCaseData с каждым postConditionItem
-                if (data.getPostConditionItems() != null) {
-                    for (TestCasePostCondition postCondition : data.getPostConditionItems()) {
+                if (data.getPostConditions() != null) {
+                    for (TestCasePostCondition postCondition : data.getPostConditions()) {
                         postCondition.setTestCaseData(data);
                     }
                 }
@@ -94,50 +97,6 @@ public class TestCaseService {
 
         return testCaseRepository.save(testCase);
     }
-
-//    // Перемещение тест-кейса из одной папки в другую
-//    @Transactional
-//    public TestCase moveTestCase(Long testCaseId, Long targetFolderId) {
-//        TestCase testCase = testCaseRepository.findById(testCaseId)
-//                .orElseThrow(() -> new IllegalArgumentException("Invalid test case ID"));
-//
-//        Folder targetFolder = folderRepository.findById(targetFolderId)
-//                .orElseThrow(() -> new IllegalArgumentException("Invalid folder ID"));
-//
-//        testCase.setFolder(targetFolder);
-//        return testCaseRepository.save(testCase);
-//    }
-
-//    // Копирование тест-кейса (в ту же или другую папку)
-//    @Transactional
-//    public TestCase copyTestCase(Long testCaseId, Long targetFolderId) {
-//        TestCase originalTestCase = testCaseRepository.findById(testCaseId)
-//                .orElseThrow(() -> new IllegalArgumentException("Invalid test case ID"));
-//
-//        Folder targetFolder = folderRepository.findById(targetFolderId)
-//                .orElseThrow(() -> new IllegalArgumentException("Invalid folder ID"));
-//
-//        TestCase newTestCase = new TestCase();
-//        newTestCase.setName(originalTestCase.getName());
-//        newTestCase.setType(originalTestCase.getType());
-//        newTestCase.setAutomationFlag(originalTestCase.getAutomationFlag());
-//        newTestCase.setFolder(targetFolder);
-////        newTestCase.setUser(originalTestCase.getUser());
-//
-//        // Копирование данных тест-кейса
-//        for (TestCaseData data : originalTestCase.getData()) {
-//            TestCaseData newTestCaseData = new TestCaseData();
-//            newTestCaseData.setTestCase(newTestCase);
-//            newTestCaseData.setName(data.getName());
-//            newTestCaseData.setAutomationFlag(data.getAutomationFlag());
-//            newTestCaseData.setPriority(data.getPriority());
-//            newTestCaseData.setTestCaseType(data.getTestCaseType());
-//            newTestCaseData.setStatus(data.getStatus());
-//            newTestCase.getData().add(newTestCaseData);
-//        }
-//
-//        return testCaseRepository.save(newTestCase);
-//    }
 
     // Удаление тест-кейса
     @Transactional
@@ -247,6 +206,10 @@ public class TestCaseService {
         }
 
         throw new RuntimeException("TestCase or target folder not found");
+    }
+
+    public TestCase getTestCaseById(Long testCaseId){
+        return this.testCaseRepository.findById(testCaseId).orElseThrow(()-> new NoSuchElementException("Not found test case with id=" + testCaseId));
     }
 
 }

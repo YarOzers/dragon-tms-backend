@@ -1,6 +1,5 @@
 package com.example.dragontmsbackend.model.folder;
 
-import com.example.dragontmsbackend.model.testcase.TestCaseDTO;
 import com.example.dragontmsbackend.model.testcase.TestCaseMapper;
 
 import java.util.stream.Collectors;

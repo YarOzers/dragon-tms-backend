@@ -3,6 +3,7 @@ package com.example.dragontmsbackend.controller;
 
 import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.model.testcase.TestCase;
+import com.example.dragontmsbackend.model.testcase.TestCaseCreateDTO;
 import com.example.dragontmsbackend.model.testcase.TestCaseData;
 import com.example.dragontmsbackend.model.testcase.TestCaseResult;
 import com.example.dragontmsbackend.service.TestCaseService;
@@ -41,8 +42,8 @@ public class TestCaseController {
     }
 
     @GetMapping("/testcase/{testCaseId}")
-    public ResponseEntity<Optional<TestCase>> getTestCase(@PathVariable Long testCaseId){
-        Optional<TestCase> testCase = testCaseService.getTestCase(testCaseId);
+    public ResponseEntity<TestCaseCreateDTO> getTestCase(@PathVariable Long testCaseId){
+        TestCaseCreateDTO testCase = testCaseService.getTestCase(testCaseId);
         return ResponseEntity.ok(testCase);
     }
 

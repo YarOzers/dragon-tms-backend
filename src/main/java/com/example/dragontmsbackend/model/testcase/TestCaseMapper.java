@@ -11,9 +11,13 @@ import java.util.stream.Collectors;
 public class TestCaseMapper {
 
     private final FolderService folderService;
+    private final TestCaseResultMapper testCaseResultMapper;
+    private final TestCaseDataMapper dataMapper;
 
-    public TestCaseMapper(ProjectService projectService, FolderService folderService) {
+    public TestCaseMapper(ProjectService projectService, FolderService folderService, TestCaseResultMapper testCaseResultMapper, TestCaseDataMapper dataMapper) {
         this.folderService = folderService;
+        this.testCaseResultMapper = testCaseResultMapper;
+        this.dataMapper = dataMapper;
     }
 
     public TestCaseDTO toDTO(TestCase testCase) {
@@ -22,25 +26,25 @@ public class TestCaseMapper {
                 testCase.getName(),
                 testCase.getType(),
                 testCase.getAutomationFlag(),
-                testCase.getData().stream().map(TestCaseDataMapper::toDTO).collect(Collectors.toList()),
+                testCase.getData().stream().map(dataMapper::toDTO).collect(Collectors.toList()),
                 testCase.getLoading(),
                 testCase.isNew(),
-                testCase.getResults(),
+                testCase.getResults().stream().map(testCaseResultMapper::toDTO).collect(Collectors.toList()),
                 testCase.getSelected(),
                 testCase.isRunning()
         );
     }
 
-    public static TestCase toEntity(TestCaseDTO testCaseDTO) {
+    public TestCase toEntity(TestCaseDTO testCaseDTO) {
         TestCase testCase = new TestCase();
         testCase.setId(testCaseDTO.getId());
         testCase.setName(testCaseDTO.getName());
         testCase.setType(testCaseDTO.getType());
         testCase.setAutomationFlag(testCaseDTO.getAutomationFlag());
-        testCase.setData(testCaseDTO.getData().stream().map(TestCaseDataMapper::toEntity).collect(Collectors.toList()));
+        testCase.setData(testCaseDTO.getData().stream().map(dataMapper::toEntity).collect(Collectors.toList()));
         testCase.setLoading(testCaseDTO.isLoading());
         testCase.setNew(testCaseDTO.isNew());
-        testCase.setResults(testCaseDTO.getResults());
+        testCase.setResults(testCaseDTO.getResults().stream().map(testCaseResultMapper::toEntity).collect(Collectors.toList()));
         testCase.setSelected(testCaseDTO.isSelected());
         testCase.setRunning(testCaseDTO.isRunning());
 
@@ -54,7 +58,6 @@ public class TestCaseMapper {
         dto.setType(testCase.getType().toString());
         dto.setAutomationFlag(testCase.getAutomationFlag().toString());
         dto.setFolderId(testCase.getFolder().getId());
-
         return dto;
     }
 
