@@ -3,11 +3,13 @@ package com.example.dragontmsbackend.service;
 import com.example.dragontmsbackend.model.folder.FolderDTO;
 import com.example.dragontmsbackend.exception.ResourceNotFoundException;
 import com.example.dragontmsbackend.model.folder.Folder;
+import com.example.dragontmsbackend.model.folder.FolderMapper;
 import com.example.dragontmsbackend.model.project.Project;
 import com.example.dragontmsbackend.model.testcase.TestCase;
 import com.example.dragontmsbackend.repository.FolderRepository;
 import com.example.dragontmsbackend.repository.ProjectRepository;
 import com.example.dragontmsbackend.repository.TestCaseRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,14 +36,37 @@ public class FolderService {
         this.testCaseRepository = testCaseRepository;
     }
 
-    public List<Folder> getProjectFolders(Long projectId) {
+    public List<FolderDTO> getProjectFolders(Long projectId) {
         // Получаем все папки проекта
         List<Folder> allFolders = this.folderRepository.findByProjectId(projectId);
 
-        // Фильтруем, оставляя только корневые папки (у которых нет родительской папки)
-        return allFolders.stream()
-                .filter(folder -> folder.getParentFolder() == null)
-                .collect(Collectors.toList());
+        // Создаем карту папок по их ID для быстрого доступа
+        Map<Long, FolderDTO> folderMap = allFolders.stream()
+                .map(FolderMapper::toDTO)
+                .collect(Collectors.toMap(FolderDTO::getId, folderDTO -> folderDTO));
+
+        // Создаем список для корневых папок
+        List<FolderDTO> rootFolders = new ArrayList<>();
+
+        // Проходим по всем папкам и правильно распределяем их в структуре
+        for (FolderDTO folderDTO : folderMap.values()) {
+            Long parentFolderId = folderDTO.getParentFolderId();
+            if (parentFolderId == null) {
+                // Если это корневая папка, добавляем в корневой список
+                rootFolders.add(folderDTO);
+            } else {
+                // Если это дочерняя папка, находим ее родителя и добавляем в список дочерних папок родителя
+                FolderDTO parentFolder = folderMap.get(parentFolderId);
+                if (parentFolder != null) {
+                    // Проверяем, не была ли уже добавлена дочерняя папка
+                    if (!parentFolder.getChildFolders().contains(folderDTO)) {
+                        parentFolder.getChildFolders().add(folderDTO);
+                    }
+                }
+            }
+        }
+
+        return rootFolders;
     }
 
     @Transactional
@@ -238,10 +261,10 @@ public class FolderService {
         Folder folderToDelete = folderRepository.findById(folderId)
                 .orElseThrow(() -> new RuntimeException("Folder not found with ID: " + folderId));
 
-        if(folderToDelete.isTrashFolder()){
+        if (folderToDelete.isTrashFolder()) {
             log.info("Удаление тест-кейсов из корзины");
             testCaseRepository.deleteAllByFolder(folderToDelete);
-        }else {
+        } else {
             // Получаем проект, к которому принадлежит удаляемая папка
             Project project = folderToDelete.getProject();
 
@@ -294,4 +317,11 @@ public class FolderService {
         }
     }
 
+    public Folder findById(Long folderId) {
+        return this.folderRepository.findById(folderId).orElseThrow(() -> new EntityNotFoundException("Folder not found " + folderId));
+    }
+
+    public Folder getFolderById(Long folderId) {
+        return folderRepository.findById(folderId).orElseThrow(() -> new EntityNotFoundException("Not found folder with id=" + folderId));
+    }
 }

@@ -4,6 +4,8 @@ import com.example.dragontmsbackend.model.project.ProjectDTO;
 import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.model.folder.Type;
 import com.example.dragontmsbackend.model.project.Project;
+import com.example.dragontmsbackend.model.project.ProjectMapper;
+import com.example.dragontmsbackend.model.project.ProjectSummaryDTO;
 import com.example.dragontmsbackend.model.user.User;
 import com.example.dragontmsbackend.repository.FolderRepository;
 import com.example.dragontmsbackend.repository.ProjectRepository;
@@ -12,14 +14,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final FolderRepository folderRepository;
+    private ProjectMapper projectMapper;
 
     public ProjectService(ProjectRepository projectRepository, UserRepository userRepository, FolderRepository folderRepository) {
         this.projectRepository = projectRepository;
@@ -27,8 +32,13 @@ public class ProjectService {
         this.folderRepository = folderRepository;
     }
 
-    public List<Project> getAllProjects() {
-        return projectRepository.findAll();
+    public List<ProjectSummaryDTO> getAllProjects() {
+        List<ProjectSummaryDTO> projects = projectRepository.findAllProjectSummaries();
+        if (projects.isEmpty()) {
+            return Collections.emptyList();
+        }
+        System.out.println(projects);
+        return projects;
     }
 
     public Optional<Project> getProjectById(Long id) {
@@ -47,7 +57,7 @@ public class ProjectService {
 //        List<User> users = userRepository.findAllById(projectDTO.getUserIds());
 //        project.setUsers(users);
 
-        Project projectFromDB =  projectRepository.save(project);
+        Project projectFromDB = projectRepository.save(project);
 
         Folder folder = new Folder();
         folder.setProject(projectFromDB);
@@ -64,15 +74,15 @@ public class ProjectService {
         folders.add(folder);
         folders.add(trash);
 
-        if (projectFromDB.getFolders() == null || projectFromDB.getFolders().isEmpty()){
-            System.out.println("Create add folder in project id " +projectFromDB.getId());
+        if (projectFromDB.getFolders() == null || projectFromDB.getFolders().isEmpty()) {
+            System.out.println("Create add folder in project id " + projectFromDB.getId());
             project.setFolders(folders);
         }
 
         folderRepository.save(folder);
 
         return project;
-          // Дата создания будет установлена автоматически
+        // Дата создания будет установлена автоматически
     }
 
     @Transactional

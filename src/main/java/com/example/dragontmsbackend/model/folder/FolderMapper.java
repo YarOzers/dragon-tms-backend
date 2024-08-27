@@ -1,28 +1,40 @@
 package com.example.dragontmsbackend.model.folder;
 
+import com.example.dragontmsbackend.model.testcase.TestCaseDTO;
 import com.example.dragontmsbackend.model.testcase.TestCaseMapper;
 
 import java.util.stream.Collectors;
 
 public class FolderMapper {
 
-    public static FolderDTO toDTO(Folder folder) {
-        return new FolderDTO(
-                folder.getName(),
-                folder.getType(),
-                folder.getProject() != null ? folder.getProject().getId() : null,
-                folder.getChildFolders().stream().map(FolderMapper::toDTO).collect(Collectors.toList()),
-                folder.getTestCases().stream().map(TestCaseMapper::toDTO).collect(Collectors.toList())
-        );
+    private final TestCaseMapper testCaseMapper;
+    private final FolderMapper folderMapper;
+
+    public FolderMapper(TestCaseMapper testCaseMapper, FolderMapper folderMapper) {
+        this.testCaseMapper = testCaseMapper;
+        this.folderMapper = folderMapper;
     }
 
-    public static Folder toEntity(FolderDTO folderDTO) {
+    public static FolderDTO toDTO(Folder folder) {
+        FolderDTO dto = new FolderDTO();
+
+        dto.setId(folder.getId());
+        dto.setName(folder.getName());
+        dto.setParentFolderId(folder.getParentFolderId());
+        dto.setChildFolders(folder.getChildFolders().stream().map(FolderMapper::toDTO).collect(Collectors.toList()));
+        dto.setTestCases(folder.getTestCases().stream().map(TestCaseMapper::toSummaryDTO).collect(Collectors.toList()));
+        dto.setType(folder.getType());
+        dto.setProjectId(folder.getProject().getId());
+        dto.setTrashFolder(folder.isTrashFolder());
+        return dto;
+    }
+
+    public Folder toEntity(FolderDTO folderDTO) {
         Folder folder = new Folder();
         folder.setName(folderDTO.getName());
         folder.setType(folderDTO.getType());
-        // Установка родительской папки и проекта предполагается на уровне сервиса
-        folder.setChildFolders(folderDTO.getChildFolders().stream().map(FolderMapper::toEntity).collect(Collectors.toList()));
-        folder.setTestCases(folderDTO.getTestCase().stream().map(TestCaseMapper::toEntity).collect(Collectors.toList()));
+        folder.setChildFolders(folderDTO.getChildFolders().stream().map(folderMapper::toEntity).collect(Collectors.toList()));
+        folder.setTestCases(folderDTO.getTestCases().stream().map(testCaseMapper::fromSummaryToEntity).collect(Collectors.toList()));
         return folder;
     }
 }

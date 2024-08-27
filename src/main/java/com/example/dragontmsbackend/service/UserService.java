@@ -3,6 +3,7 @@ package com.example.dragontmsbackend.service;
 import com.example.dragontmsbackend.model.user.UserDTO;
 import com.example.dragontmsbackend.model.user.User;
 import com.example.dragontmsbackend.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,5 +23,9 @@ public class UserService {
         user.setRights(userDTO.getRights());
 
         return userRepository.save(user);
+    }
+
+    public User findById(Long authorId) {
+        return this.userRepository.findById(authorId).orElseThrow(()-> new EntityNotFoundException("User not found with id " + authorId));
     }
 }

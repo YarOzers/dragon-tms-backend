@@ -3,19 +3,17 @@ package com.example.dragontmsbackend.service;
 
 import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.model.project.Project;
-import com.example.dragontmsbackend.model.testcase.Result;
 import com.example.dragontmsbackend.model.testcase.TestCase;
-import com.example.dragontmsbackend.model.testcase.TestCaseResult;
 import com.example.dragontmsbackend.model.testplan.TestPlan;
 import com.example.dragontmsbackend.model.testplan.TestPlanStatus;
 import com.example.dragontmsbackend.model.user.User;
 import com.example.dragontmsbackend.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class TestPlanService {
@@ -206,5 +204,9 @@ public class TestPlanService {
 
     public Optional<TestPlan> getTestPlan(Long testPlanId) {
         return this.testPlanRepository.findById(testPlanId);
+    }
+
+    public TestPlan findById(Long testPlanId) {
+        return  this.testPlanRepository.findById(testPlanId).orElseThrow(()-> new EntityNotFoundException("TestPlan not found " + testPlanId));
     }
 }

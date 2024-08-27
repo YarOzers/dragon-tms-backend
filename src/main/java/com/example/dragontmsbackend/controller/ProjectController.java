@@ -2,6 +2,7 @@ package com.example.dragontmsbackend.controller;
 
 import com.example.dragontmsbackend.model.project.ProjectDTO;
 import com.example.dragontmsbackend.model.project.Project;
+import com.example.dragontmsbackend.model.project.ProjectSummaryDTO;
 import com.example.dragontmsbackend.service.ProjectService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +20,12 @@ public class ProjectController {
     }
 
     @GetMapping
-    public List<Project> getAllProjects() {
-        return projectService.getAllProjects();
+    public ResponseEntity<List<ProjectSummaryDTO>> getAllProjects() {
+        List<ProjectSummaryDTO> projects = projectService.getAllProjects();
+        if(projects.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(projects);
     }
 
     @GetMapping("/{id}")

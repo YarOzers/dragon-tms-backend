@@ -29,9 +29,9 @@ public class FolderController {
     }
 
     @GetMapping("/{projectId}")
-    public List<Folder> getProjectFolders(@PathVariable Long projectId) {
-        List<Folder> folders = folderService.getProjectFolders(projectId);
-//        System.out.println("Folders : " + folders);
+    public List<FolderDTO> getProjectFolders(@PathVariable Long projectId) {
+        List<FolderDTO> folders = folderService.getProjectFolders(projectId);
+        System.out.println("Folders : " + folders);
         return folders;
     }
 
