@@ -6,6 +6,7 @@ import com.example.dragontmsbackend.model.testcase.*;
 import com.example.dragontmsbackend.model.testplan.TestPlan;
 import com.example.dragontmsbackend.repository.*;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,8 +16,10 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class TestCaseService {
 
+    private final TestCaseDataRepository testCaseDataRepository;
     private final TestCaseRepository testCaseRepository;
     private final FolderRepository folderRepository;
     private final TestCaseResultRepository testCaseResultRepository;
@@ -24,22 +27,26 @@ public class TestCaseService {
     private final ProjectRepository projectRepository;
     private final TestCaseCreateMapper testCaseCreateMapper;
 
-    public TestCaseService(TestCaseRepository testCaseRepository, FolderRepository folderRepository, UserRepository userRepository, TestCaseResultRepository testCaseResultRepository, TestPlanRepository testPlanRepository, ProjectRepository projectRepository, TestCaseCreateMapper testCaseCreateMapper, TestCaseCreateMapper testCaseCreateMapper1) {
+    private final TestCaseDataMapper dataMapper;
+
+    public TestCaseService(TestCaseRepository testCaseRepository, FolderRepository folderRepository, UserRepository userRepository, TestCaseDataRepository testCaseDataRepository, TestCaseResultRepository testCaseResultRepository, TestPlanRepository testPlanRepository, ProjectRepository projectRepository, TestCaseCreateMapper testCaseCreateMapper, TestCaseCreateMapper testCaseCreateMapper1, TestCaseDataMapper dataMapper) {
         this.testCaseRepository = testCaseRepository;
         this.folderRepository = folderRepository;
+        this.testCaseDataRepository = testCaseDataRepository;
         this.testCaseResultRepository = testCaseResultRepository;
         this.testPlanRepository = testPlanRepository;
         this.projectRepository = projectRepository;
         this.testCaseCreateMapper = testCaseCreateMapper1;
+        this.dataMapper = dataMapper;
     }
 
     public List<TestCase> getTestCasesInFolder(Folder folder) {
         return testCaseRepository.findTestCasesByFolder(folder);
     }
 
-    public TestCaseCreateDTO getTestCase(Long testCaseId){
+    public TestCaseCreateDTO getTestCase(Long testCaseId) {
 
-        TestCase testCase =  testCaseRepository.findById(testCaseId).orElseThrow(()-> new NoSuchElementException("Not fount testCase with id=" + testCaseId));
+        TestCase testCase = testCaseRepository.findById(testCaseId).orElseThrow(() -> new NoSuchElementException("Not fount testCase with id=" + testCaseId));
         return testCaseCreateMapper.toDTO(testCase);
 
 
@@ -87,26 +94,60 @@ public class TestCaseService {
 
     // Обновление тест-кейса с добавлением новой версии данных
     @Transactional
-    public TestCase updateTestCase(Long testCaseId, TestCaseData testCaseData) {
-        TestCase testCase = testCaseRepository.findById(testCaseId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid test case ID"));
+    public TestCase updateTestCase(Long testCaseId, TestCaseDataDTO testCaseDataDTO) {
+        try {
+            // Получаем существующий TestCase из базы данных
+            TestCase testCase = testCaseRepository.findById(testCaseId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid test case ID"));
 
-        testCaseData.setTestCase(testCase);
-        testCase.getData().add(testCaseData);
-        testCase.setLastDataIndex(testCase.getData().size() - 1);
+            // Преобразуем DTO в сущность TestCaseData
+            TestCaseData data = dataMapper.toEntity(testCaseDataDTO);
 
-        return testCaseRepository.save(testCase);
+            // Устанавливаем связи TestCaseData с его составляющими
+            if (data.getPreConditions() != null) {
+                data.getPreConditions().forEach(preCondition -> preCondition.setTestCaseData(data));
+            }
+            if (data.getSteps() != null) {
+                data.getSteps().forEach(step -> step.setTestCaseData(data));
+            }
+            if (data.getPostConditions() != null) {
+                data.getPostConditions().forEach(postCondition -> postCondition.setTestCaseData(data));
+            }
+
+            // Сначала сохраняем TestCase, если он новый
+            if (testCase.getId() == null) {
+                testCase = testCaseRepository.save(testCase);
+            }
+
+            // Устанавливаем обратную связь между TestCase и TestCaseData
+            data.setTestCase(testCase);
+
+            // Сохраняем TestCaseData
+            testCaseDataRepository.save(data);
+
+            // Добавляем TestCaseData в TestCase
+            testCase.addTestCaseData(data);
+
+            // Обновляем последний индекс данных
+            testCase.setLastDataIndex(testCase.getData().size());
+
+            // Сохраняем изменения в базе данных
+            return testCase;
+        } catch (Exception e) {
+            log.error("Error updating test case: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to update test case with ID: " + testCaseId, e);
+        }
     }
 
     // Удаление тест-кейса
     @Transactional
     public void deleteTestCase(Long testCaseId) {
 
-        TestCase testCase = testCaseRepository.findById(testCaseId).orElseThrow(()->new EntityNotFoundException("Не найден тест кейс с id=" + testCaseId));
-        Folder folder = folderRepository.findByTestCases(testCase).orElseThrow(()-> new RuntimeException("Папка тест-кейса не найдена"));
-        if(folder.isTrashFolder()){
+        TestCase testCase = testCaseRepository.findById(testCaseId).orElseThrow(() -> new EntityNotFoundException("Не найден тест кейс с id=" + testCaseId));
+        Folder folder = folderRepository.findByTestCases(testCase).orElseThrow(() -> new RuntimeException("Папка тест-кейса не найдена"));
+        if (folder.isTrashFolder()) {
             testCaseRepository.deleteById(testCaseId);
-        }else {
+        } else {
             Project project = projectRepository.findByFolders(folder).orElseThrow(() -> new RuntimeException("Проект не найден"));
             Folder trashFolder = folderRepository.findByProjectAndIsTrashFolderIsTrue(project).orElseThrow(() -> new RuntimeException("Корзина не найдена"));
             testCase.setFolder(trashFolder);
@@ -208,8 +249,8 @@ public class TestCaseService {
         throw new RuntimeException("TestCase or target folder not found");
     }
 
-    public TestCase getTestCaseById(Long testCaseId){
-        return this.testCaseRepository.findById(testCaseId).orElseThrow(()-> new NoSuchElementException("Not found test case with id=" + testCaseId));
+    public TestCase getTestCaseById(Long testCaseId) {
+        return this.testCaseRepository.findById(testCaseId).orElseThrow(() -> new NoSuchElementException("Not found test case with id=" + testCaseId));
     }
 
 }

@@ -25,6 +25,7 @@ public class FolderMapper {
         dto.setType(folder.getType());
         dto.setProjectId(folder.getProject().getId());
         dto.setTrashFolder(folder.isTrashFolder());
+//        dto.setTestPlan(folder.getTestPlan());
         return dto;
     }
 
@@ -32,6 +33,8 @@ public class FolderMapper {
         Folder folder = new Folder();
         folder.setName(folderDTO.getName());
         folder.setType(folderDTO.getType());
+        folder.setParentFolderId(folderDTO.getParentFolderId());
+//        folder.setTestPlan(folderDTO.getTestPlan());
         folder.setChildFolders(folderDTO.getChildFolders().stream().map(folderMapper::toEntity).collect(Collectors.toList()));
         folder.setTestCases(folderDTO.getTestCases().stream().map(testCaseMapper::fromSummaryToEntity).collect(Collectors.toList()));
         return folder;

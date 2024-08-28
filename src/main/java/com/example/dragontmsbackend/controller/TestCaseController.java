@@ -2,10 +2,7 @@ package com.example.dragontmsbackend.controller;
 
 
 import com.example.dragontmsbackend.model.folder.Folder;
-import com.example.dragontmsbackend.model.testcase.TestCase;
-import com.example.dragontmsbackend.model.testcase.TestCaseCreateDTO;
-import com.example.dragontmsbackend.model.testcase.TestCaseData;
-import com.example.dragontmsbackend.model.testcase.TestCaseResult;
+import com.example.dragontmsbackend.model.testcase.*;
 import com.example.dragontmsbackend.service.TestCaseService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -49,8 +46,8 @@ public class TestCaseController {
 
     // Обновление тест-кейса (добавление новой версии данных)
     @PutMapping("/{testCaseId}")
-    public ResponseEntity<TestCase> updateTestCase(@PathVariable Long testCaseId, @RequestBody TestCaseData testCaseData) {
-        TestCase updatedTestCase = testCaseService.updateTestCase(testCaseId, testCaseData);
+    public ResponseEntity<TestCase> updateTestCase(@PathVariable Long testCaseId, @RequestBody TestCaseDataDTO testCaseDataDTO) {
+        TestCase updatedTestCase = testCaseService.updateTestCase(testCaseId, testCaseDataDTO);
         return ResponseEntity.ok(updatedTestCase);
     }
 

@@ -147,7 +147,7 @@ public class FolderService {
             copiedFolder.setName("Копия " + folder.getName());
             copiedFolder.setParentFolder(targetFolder);
             copiedFolder.setType(folder.getType());
-            copiedFolder.setTestPlan(folder.getTestPlan());
+//            copiedFolder.setTestPlan(folder.getTestPlan());
             copiedFolder.setProject(folder.getProject());
 
             // Создаем копии тест-кейсов с префиксом "Копия"
@@ -219,7 +219,7 @@ public class FolderService {
                 copiedChild.setName("Копия " + child.getName());
                 copiedChild.setParentFolder(copiedFolder);
                 copiedChild.setType(child.getType());
-                copiedChild.setTestPlan(child.getTestPlan());
+//                copiedChild.setTestPlan(child.getTestPlan());
                 copiedChild.setProject(child.getProject());
 
                 // Копирование тест-кейсов с префиксом "Копия"

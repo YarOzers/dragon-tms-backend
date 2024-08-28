@@ -11,6 +11,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -30,10 +32,14 @@ public class User {
 
     private Right rights;
 
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @OneToMany(mappedBy = "user")
     @JsonIgnore
     private List<Project> projects;
 
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @OneToMany(mappedBy = "user")
     @JsonIgnore
     private List<TestPlan> testPlans;
@@ -41,10 +47,14 @@ public class User {
 //    @OneToMany(mappedBy = "user")
 //    private List<TestCase> testCases;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "user")
     @JsonIgnore
     private List<TestCaseResult> testCaseResults;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "changesAuthor")
     @JsonIgnore
     private List<TestCaseData> testCaseData;

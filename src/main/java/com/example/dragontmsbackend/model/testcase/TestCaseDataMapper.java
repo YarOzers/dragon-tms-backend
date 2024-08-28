@@ -3,6 +3,7 @@ package com.example.dragontmsbackend.model.testcase;
 import com.example.dragontmsbackend.model.user.UserMapper;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -24,6 +25,8 @@ public class TestCaseDataMapper {
 
         TestCaseDataDTO dto = new TestCaseDataDTO();
         dto.setChangesAuthor(userMapper.toDTO(data.getChangesAuthor()));
+        dto.setAutomationFlag(data.getAutomationFlag());
+        dto.setExecutionTime(data.getExecutionTime());
         dto.setCreatedDate(data.getCreatedDate());
         dto.setName(data.getName());
         dto.setPriority(data.getPriority());
@@ -38,11 +41,26 @@ public class TestCaseDataMapper {
     public TestCaseData toEntity(TestCaseDataDTO testCaseDataDTO) {
         TestCaseData testCaseData = new TestCaseData();
         testCaseData.setName(testCaseDataDTO.getName());
+        testCaseData.setAutomationFlag(testCaseDataDTO.getAutomationFlag());
+        testCaseData.setExecutionTime(testCaseDataDTO.getExecutionTime());
         testCaseData.setChangesAuthor(userMapper.toEntity(testCaseDataDTO.getChangesAuthor()));
         testCaseData.setCreatedDate(testCaseDataDTO.getCreatedDate());
         testCaseData.setPriority(testCaseDataDTO.getPriority());
         testCaseData.setTestCaseType(testCaseDataDTO.getTestCaseType());
         testCaseData.setStatus(testCaseDataDTO.getStatus());
+        testCaseData.setExpectedExecutionTime(testCaseDataDTO.getExecutionTime());
+
+        List<TestCaseStep> steps = testCaseDataDTO.getSteps().stream().map(stepMapper::toEntity)
+                        .peek(step -> step.setTestCaseData(testCaseData)).toList();
+        testCaseData.setSteps(steps);
+
+        List<TestCasePreCondition> preConditions = testCaseDataDTO.getPreConditions().stream().map(preConditionMapper::toEntity)
+                        .peek(preCondition -> preCondition.setTestCaseData(testCaseData)).toList();
+        testCaseData.setPreConditions(preConditions);
+
+        List<TestCasePostCondition> postConditions = testCaseDataDTO.getPostConditions().stream().map(postConditionMapper::toEntity)
+                        .peek(postCondition -> postCondition.setTestCaseData(testCaseData)).toList();
+        testCaseData.setPostConditions(postConditions);
 
         return testCaseData;
     }

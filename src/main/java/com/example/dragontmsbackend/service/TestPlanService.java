@@ -49,13 +49,6 @@ public class TestPlanService {
         return testPlanRepository.findByProject(project);
     }
 
-    // Метод для получения всех папок определенного тест-плана по ID тест-плана
-    public List<Folder> getFoldersByTestPlanId(Long testPlanId) {
-        TestPlan testPlan = testPlanRepository.findById(testPlanId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid Test Plan ID"));
-
-        return folderRepository.findByTestPlan(testPlan);
-    }
 
     // Метод для создания нового тест-плана
     public TestPlan createTestPlan(String name, Long userId, Long projectId) {

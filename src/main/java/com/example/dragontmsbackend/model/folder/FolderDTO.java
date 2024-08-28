@@ -1,6 +1,7 @@
 package com.example.dragontmsbackend.model.folder;
 
 import com.example.dragontmsbackend.model.testcase.TestCaseSummaryDTO;
+import com.example.dragontmsbackend.model.testplan.TestPlan;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,4 +30,5 @@ public class FolderDTO {
     private boolean isTrashFolder = false;
 
     private Long projectId;
+    private TestPlan testPlan;
 }

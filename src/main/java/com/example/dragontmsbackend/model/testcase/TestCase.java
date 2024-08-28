@@ -68,4 +68,10 @@ public class TestCase {
     public boolean isRunning() {
         return this.isRunning;
     }
+
+    // Новый метод для добавления TestCaseData
+    public void addTestCaseData(TestCaseData data) {
+        data.setTestCase(this); // Устанавливаем обратную связь
+        this.data.add(data);
+    }
 }

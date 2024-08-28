@@ -7,8 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.boot.context.properties.bind.DefaultValue;
@@ -16,7 +15,10 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Folder {
 
@@ -29,36 +31,41 @@ public class Folder {
     private String name;
 
     // Отношение "многие к одному" для родительской папки
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @ManyToOne
     @JoinColumn(name = "parent_folder_id")
-    @JsonBackReference(value = "child_parent_folder")
+    @JsonIgnore
+    @JsonIdentityReference(alwaysAsId = true)
     private Folder parentFolder;
 
     // Отношение "один ко многим" для дочерних папок
     @OneToMany(mappedBy = "parentFolder", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "child_parent_folder")
-
     private List<Folder> childFolders;
 
     // Отношение "один ко многим" для тест-кейсов
     @OneToMany  //(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "folder_id") // внешний ключ в таблице TestCase
     @JsonManagedReference(value = "folder_testcases")
-
     private List<TestCase> testCases;
 
     // Тип папки
     private Type type;
 
     // Связь с тестовым планом
-    @ManyToOne
-    @JoinColumn(name = "test_plan_id")
-    @JsonBackReference(value = "testplan_folder")
-    private TestPlan testPlan;
+//    @ToString.Exclude
+//    @EqualsAndHashCode.Exclude
+//    @ManyToOne
+//    @JoinColumn(name = "test_plan_id")
+//    @JsonIgnore
+//    @JsonIdentityReference(alwaysAsId = true)
+//    private TestPlan testPlan;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @ManyToOne
     @JoinColumn(name = "project_id")
-    @JsonBackReference(value = "project_folder")
+    @JsonIgnore
     private Project project;
 
 

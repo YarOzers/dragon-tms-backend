@@ -15,8 +15,6 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 
     List<Folder> findByProjectId(Long projectId);
 
-    List<Folder> findByTestPlan(TestPlan testPlan);
-
     Optional<Folder> findByNameAndParentFolderIsNull(String folderName);
     Optional<Folder> findByNameAndProject(String name, Project project);
 

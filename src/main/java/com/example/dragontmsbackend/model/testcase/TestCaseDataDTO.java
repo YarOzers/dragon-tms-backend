@@ -18,11 +18,13 @@ public class TestCaseDataDTO {
     private UserDTO changesAuthor;
     private LocalDateTime createdDate;
     private String name;
+    private AutomationFlag automationFlag;
     private Priority priority;
     private TestCaseType testCaseType;
     private TestCaseStatus status;
     private List<TestCaseStepDTO> steps;
     private List<TestCasePreConditionDTO> preConditions;
     private List<TestCasePostConditionDTO> postConditions;
+    private String executionTime;
 
 }

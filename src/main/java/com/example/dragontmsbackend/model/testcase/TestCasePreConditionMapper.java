@@ -13,7 +13,7 @@ public class TestCasePreConditionMapper {
         return dto;
     }
 
-    public TestCasePreCondition toEntity(TestCasePostConditionDTO dto){
+    public TestCasePreCondition toEntity(TestCasePreConditionDTO dto){
         TestCasePreCondition preCondition = new TestCasePreCondition();
         preCondition.setIndex(dto.getIndex());
         preCondition.setAction(dto.getAction());
