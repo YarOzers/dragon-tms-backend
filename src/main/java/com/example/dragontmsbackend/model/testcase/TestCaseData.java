@@ -49,7 +49,7 @@ public class TestCaseData {
     @Enumerated(EnumType.STRING)
     private TestCaseType testCaseType;
 
-    private int version;
+    private int version = 1;
 
     @Enumerated(EnumType.STRING)
     private TestCaseStatus status;

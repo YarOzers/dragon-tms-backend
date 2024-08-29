@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/testcases")
@@ -79,8 +78,8 @@ public class TestCaseController {
     }
 
     @GetMapping("/folder/{folderId}/all")
-    public ResponseEntity<List<TestCase>> getAllTestCases(@PathVariable Long folderId) {
-        List<TestCase> testCases = testCaseService.getAllTestCasesFromFolderAndSubfolders(folderId);
+    public ResponseEntity<List<TestCaseSummaryDTO>> getAllTestCases(@PathVariable Long folderId) {
+        List<TestCaseSummaryDTO> testCases = testCaseService.getAllTestCasesFromFolderAndSubfolders(folderId);
         return ResponseEntity.ok(testCases);
     }
 

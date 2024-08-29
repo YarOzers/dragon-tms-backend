@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -26,10 +27,11 @@ public class TestCaseService {
     private final TestPlanRepository testPlanRepository;
     private final ProjectRepository projectRepository;
     private final TestCaseCreateMapper testCaseCreateMapper;
+    private final TestCaseMapper testCaseMapper;
 
     private final TestCaseDataMapper dataMapper;
 
-    public TestCaseService(TestCaseRepository testCaseRepository, FolderRepository folderRepository, UserRepository userRepository, TestCaseDataRepository testCaseDataRepository, TestCaseResultRepository testCaseResultRepository, TestPlanRepository testPlanRepository, ProjectRepository projectRepository, TestCaseCreateMapper testCaseCreateMapper, TestCaseCreateMapper testCaseCreateMapper1, TestCaseDataMapper dataMapper) {
+    public TestCaseService(TestCaseRepository testCaseRepository, FolderRepository folderRepository, UserRepository userRepository, TestCaseDataRepository testCaseDataRepository, TestCaseResultRepository testCaseResultRepository, TestPlanRepository testPlanRepository, ProjectRepository projectRepository, TestCaseCreateMapper testCaseCreateMapper, TestCaseCreateMapper testCaseCreateMapper1, TestCaseMapper testCaseMapper, TestCaseDataMapper dataMapper) {
         this.testCaseRepository = testCaseRepository;
         this.folderRepository = folderRepository;
         this.testCaseDataRepository = testCaseDataRepository;
@@ -37,6 +39,7 @@ public class TestCaseService {
         this.testPlanRepository = testPlanRepository;
         this.projectRepository = projectRepository;
         this.testCaseCreateMapper = testCaseCreateMapper1;
+        this.testCaseMapper = testCaseMapper;
         this.dataMapper = dataMapper;
     }
 
@@ -139,6 +142,7 @@ public class TestCaseService {
         }
     }
 
+
     // Удаление тест-кейса
     @Transactional
     public void deleteTestCase(Long testCaseId) {
@@ -157,14 +161,15 @@ public class TestCaseService {
         }
     }
 
-    public List<TestCase> getAllTestCasesFromFolderAndSubfolders(Long folderId) {
+    public List<TestCaseSummaryDTO> getAllTestCasesFromFolderAndSubfolders(Long folderId) {
         Folder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid folder ID"));
 
         List<TestCase> allTestCases = new ArrayList<>();
         collectTestCases(folder, allTestCases);
 
-        return allTestCases;
+       return allTestCases.stream().map(testCaseMapper::toSummaryDTO).toList();
+
     }
 
     private void collectTestCases(Folder folder, List<TestCase> testCases) {

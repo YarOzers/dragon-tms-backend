@@ -3,6 +3,7 @@ package com.example.dragontmsbackend.model.testcase;
 import com.example.dragontmsbackend.model.folder.Folder;
 import com.example.dragontmsbackend.service.FolderService;
 import com.example.dragontmsbackend.service.ProjectService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
@@ -14,7 +15,7 @@ public class TestCaseMapper {
     private final TestCaseResultMapper testCaseResultMapper;
     private final TestCaseDataMapper dataMapper;
 
-    public TestCaseMapper(ProjectService projectService, FolderService folderService, TestCaseResultMapper testCaseResultMapper, TestCaseDataMapper dataMapper) {
+    public TestCaseMapper(@Lazy FolderService folderService, TestCaseResultMapper testCaseResultMapper, TestCaseDataMapper dataMapper) {
         this.folderService = folderService;
         this.testCaseResultMapper = testCaseResultMapper;
         this.dataMapper = dataMapper;
@@ -51,10 +52,10 @@ public class TestCaseMapper {
         return testCase;
     }
 
-    public static TestCaseSummaryDTO toSummaryDTO(TestCase testCase) {
+    public TestCaseSummaryDTO toSummaryDTO(TestCase testCase) {
         TestCaseSummaryDTO dto = new TestCaseSummaryDTO();
         dto.setId(testCase.getId());
-        dto.setName(testCase.getName());
+        dto.setName(getName(testCase));
         dto.setType(testCase.getType().toString());
         dto.setAutomationFlag(testCase.getAutomationFlag().toString());
         dto.setFolderId(testCase.getFolder().getId());
@@ -70,5 +71,13 @@ public class TestCaseMapper {
         testCase.setFolder(folderService.getFolderById(dto.getFolderId()));
 
         return testCase;
+    }
+
+    private static String getName(TestCase testCase){
+        TestCaseData data = testCase.getData().stream().reduce((first, second)-> second).orElse(null);
+        if (data !=null){
+            return data.getName();
+        }
+        return null;
     }
 }

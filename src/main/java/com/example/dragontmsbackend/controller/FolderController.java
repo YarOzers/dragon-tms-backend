@@ -21,11 +21,9 @@ public class FolderController {
     private static final Logger logger = LoggerFactory.getLogger(FolderController.class);
 
     private final FolderService folderService;
-    private final ProjectService projectService;
 
-    public FolderController(FolderService folderService, ProjectService projectService) {
+    public FolderController(FolderService folderService) {
         this.folderService = folderService;
-        this.projectService = projectService;
     }
 
     @GetMapping("/{projectId}")

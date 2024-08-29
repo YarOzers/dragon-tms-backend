@@ -13,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,11 +30,13 @@ public class FolderService {
     private final ProjectRepository projectRepository;
 
     private final TestCaseRepository testCaseRepository;
+    private final FolderMapper folderMapper;
 
-    public FolderService(FolderRepository folderRepository, ProjectRepository projectRepository, TestCaseRepository testCaseRepository) {
+    public FolderService(FolderRepository folderRepository, ProjectRepository projectRepository, TestCaseRepository testCaseRepository, FolderMapper folderMapper) {
         this.folderRepository = folderRepository;
         this.projectRepository = projectRepository;
         this.testCaseRepository = testCaseRepository;
+        this.folderMapper = folderMapper;
     }
 
     public List<FolderDTO> getProjectFolders(Long projectId) {
@@ -42,7 +45,7 @@ public class FolderService {
 
         // Создаем карту папок по их ID для быстрого доступа
         Map<Long, FolderDTO> folderMap = allFolders.stream()
-                .map(FolderMapper::toDTO)
+                .map(folderMapper::toDTO)
                 .collect(Collectors.toMap(FolderDTO::getId, folderDTO -> folderDTO));
 
         // Создаем список для корневых папок
