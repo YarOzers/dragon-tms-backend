@@ -31,12 +31,14 @@ public class FolderService {
 
     private final TestCaseRepository testCaseRepository;
     private final FolderMapper folderMapper;
+    private final TestCaseService testCaseService;
 
-    public FolderService(FolderRepository folderRepository, ProjectRepository projectRepository, TestCaseRepository testCaseRepository, FolderMapper folderMapper) {
+    public FolderService(FolderRepository folderRepository, ProjectRepository projectRepository, TestCaseRepository testCaseRepository, FolderMapper folderMapper, TestCaseService testCaseService) {
         this.folderRepository = folderRepository;
         this.projectRepository = projectRepository;
         this.testCaseRepository = testCaseRepository;
         this.folderMapper = folderMapper;
+        this.testCaseService = testCaseService;
     }
 
     public List<FolderDTO> getProjectFolders(Long projectId) {
@@ -150,32 +152,28 @@ public class FolderService {
             copiedFolder.setName("Копия " + folder.getName());
             copiedFolder.setParentFolder(targetFolder);
             copiedFolder.setType(folder.getType());
-//            copiedFolder.setTestPlan(folder.getTestPlan());
+            // copiedFolder.setTestPlan(folder.getTestPlan());
             copiedFolder.setProject(folder.getProject());
 
+            copiedFolder = folderRepository.save(copiedFolder);
             // Создаем копии тест-кейсов с префиксом "Копия"
             List<TestCase> copiedTestCases = new ArrayList<>();
             for (TestCase testCase : folder.getTestCases()) {
-                TestCase copiedTestCase = new TestCase();
-                copiedTestCase.setName("Копия " + testCase.getName());
-                copiedTestCase.setType(testCase.getType());
-                copiedTestCase.setAutomationFlag(testCase.getAutomationFlag());
-                copiedTestCase.setFolder(copiedFolder);
-                copiedTestCase.setData(new ArrayList<>(testCase.getData()));  // Копируем данные тест-кейса
-                copiedTestCase.setLastDataIndex(testCase.getLastDataIndex());
-                copiedTestCase.setLoading(testCase.getLoading());
-                copiedTestCase.setNew(testCase.isNew());
-                copiedTestCase.setSelected(testCase.getSelected());
-                copiedTestCase.setRunning(testCase.isRunning());
-
+                TestCase copiedTestCase = testCaseService.copyTestCase(testCase.getId(), copiedFolder);
                 copiedTestCases.add(copiedTestCase);
+
+                testCaseRepository.save(copiedTestCase); // Сохранение тест-кейсов
             }
+
             copiedFolder.setTestCases(copiedTestCases);
 
             // Рекурсивное копирование дочерних папок
             copyChildFolders(folder, copiedFolder);
 
-            return folderRepository.save(copiedFolder);
+            // Сохранение скопированной папки
+            Folder toReturnFolder = folderRepository.save(copiedFolder);
+
+            return toReturnFolder;
         }
 
         throw new RuntimeException("Folder or target folder not found");
@@ -222,23 +220,16 @@ public class FolderService {
                 copiedChild.setName("Копия " + child.getName());
                 copiedChild.setParentFolder(copiedFolder);
                 copiedChild.setType(child.getType());
-//                copiedChild.setTestPlan(child.getTestPlan());
+                // copiedChild.setTestPlan(child.getTestPlan());
                 copiedChild.setProject(child.getProject());
 
+                // Сначала сохраняем скопированную папку
+                copiedChild = folderRepository.save(copiedChild);
                 // Копирование тест-кейсов с префиксом "Копия"
                 List<TestCase> copiedTestCases = new ArrayList<>();
                 for (TestCase testCase : child.getTestCases()) {
-                    TestCase copiedTestCase = new TestCase();
-                    copiedTestCase.setName("Копия " + testCase.getName());
-                    copiedTestCase.setType(testCase.getType());
-                    copiedTestCase.setAutomationFlag(testCase.getAutomationFlag());
-                    copiedTestCase.setFolder(copiedChild);
-                    copiedTestCase.setData(new ArrayList<>(testCase.getData()));
-                    copiedTestCase.setLastDataIndex(testCase.getLastDataIndex());
-                    copiedTestCase.setLoading(testCase.getLoading());
-                    copiedTestCase.setNew(testCase.isNew());
-                    copiedTestCase.setSelected(testCase.getSelected());
-                    copiedTestCase.setRunning(testCase.isRunning());
+                    TestCase copiedTestCase = testCaseService.copyTestCase(testCase.getId(), copiedChild);
+                    testCaseRepository.save(copiedTestCase);
 
                     copiedTestCases.add(copiedTestCase);
                 }
@@ -250,6 +241,9 @@ public class FolderService {
                 }
 
                 copiedFolder.getChildFolders().add(copiedChild);
+
+                // Сохранение скопированной дочерней папки
+                folderRepository.save(copiedChild);
 
                 // Рекурсивное копирование для дочерних папок
                 copyChildFolders(child, copiedChild);
