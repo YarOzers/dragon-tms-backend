@@ -226,6 +226,7 @@ public class TestCaseService {
         throw new RuntimeException("TestCase or target folder not found");
     }
 
+    @Transactional
     public TestCase copyTestCase(Long testCaseId, Long targetFolderId) {
         Optional<TestCase> testCaseOpt = testCaseRepository.findById(testCaseId);
         Optional<Folder> targetFolderOpt = folderRepository.findById(targetFolderId);
@@ -240,13 +241,71 @@ public class TestCaseService {
             copiedTestCase.setType(testCase.getType());
             copiedTestCase.setAutomationFlag(testCase.getAutomationFlag());
             copiedTestCase.setFolder(targetFolder);
-            copiedTestCase.setData(new ArrayList<>(testCase.getData()));
             copiedTestCase.setLastDataIndex(testCase.getLastDataIndex());
             copiedTestCase.setLoading(testCase.getLoading());
             copiedTestCase.setNew(testCase.isNew());
             copiedTestCase.setSelected(testCase.getSelected());
             copiedTestCase.setRunning(testCase.isRunning());
-            copiedTestCase.setResults(new ArrayList<>(testCase.getResults()));
+            copiedTestCase.setData(new ArrayList<>());
+            copiedTestCase.setResults(new ArrayList<>());
+
+            // Копируем TestCaseData
+            if (!testCase.getData().isEmpty()) {
+//                for (TestCaseData data : testCase.getData()) { // если раскомментировать, то копироваться будут все data, а не только последний
+                TestCaseData data = testCase.getData().stream().reduce((first,second)->second).orElse(null);  // это нужно будет раскомментировать
+
+                    TestCaseData newData = new TestCaseData();
+                    newData.setAutomationFlag(data.getAutomationFlag());
+                    newData.setChangesAuthor(data.getChangesAuthor());
+                    newData.setCreatedDate(data.getCreatedDate());
+                    newData.setExecutionTime(data.getExecutionTime());
+                    newData.setExpectedExecutionTime(data.getExpectedExecutionTime());
+                    newData.setName("(Копия) " + data.getName());
+                    newData.setPreConditions(new ArrayList<>());
+                    newData.setSteps(new ArrayList<>());
+                    newData.setPostConditions(new ArrayList<>());
+                    newData.setPriority(data.getPriority());
+                    newData.setTestCaseType(data.getTestCaseType());
+                    newData.setVersion(data.getVersion());
+                    newData.setStatus(data.getStatus());
+                    newData.setTestCase(copiedTestCase);
+
+                    // Копируем preConditions
+                    for (TestCasePreCondition preCondition : data.getPreConditions()) {
+                        TestCasePreCondition newPreCondition = new TestCasePreCondition();
+                        newPreCondition.setAction(preCondition.getAction());  // Копируем данные из оригинального preCondition
+                        newPreCondition.setExpectedResult(preCondition.getExpectedResult());
+                        newPreCondition.setIndex(preCondition.getIndex());
+                        newPreCondition.setSelected(preCondition.isSelected());
+                        newPreCondition.setTestCaseData(newData);
+                        newData.getPreConditions().add(newPreCondition);
+                    }
+
+                    // Копируем steps
+                    for (TestCaseStep step : data.getSteps()) {
+                        TestCaseStep newStep = new TestCaseStep();
+                        newStep.setAction(step.getAction());  // Копируем данные из оригинального step
+                        newStep.setExpectedResult(step.getExpectedResult());
+                        newStep.setIndex(step.getIndex());
+                        newStep.setSelected(step.isSelected());
+                        newStep.setTestCaseData(newData);
+                        newData.getSteps().add(newStep);
+                    }
+
+                    // Копируем postConditions
+                    for (TestCasePostCondition postCondition : data.getPostConditions()) {
+                        TestCasePostCondition newPostCondition = new TestCasePostCondition();
+                        newPostCondition.setAction(postCondition.getAction());  // Копируем данные из оригинального postCondition
+                        newPostCondition.setExpectedResult(postCondition.getExpectedResult());
+                        newPostCondition.setIndex(postCondition.getIndex());
+                        newPostCondition.setSelected(postCondition.isSelected());
+                        newPostCondition.setTestCaseData(newData);
+                        newData.getPostConditions().add(newPostCondition);
+                    }
+
+                    copiedTestCase.addTestCaseData(newData);
+
+            }
 
             return testCaseRepository.save(copiedTestCase);
         }
