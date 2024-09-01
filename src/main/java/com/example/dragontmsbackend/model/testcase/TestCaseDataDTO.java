@@ -26,5 +26,6 @@ public class TestCaseDataDTO {
     private List<TestCasePreConditionDTO> preConditions;
     private List<TestCasePostConditionDTO> postConditions;
     private String executionTime;
+    private int version;
 
 }

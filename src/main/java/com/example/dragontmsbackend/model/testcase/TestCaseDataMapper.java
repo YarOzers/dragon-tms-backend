@@ -35,6 +35,7 @@ public class TestCaseDataMapper {
         dto.setSteps(data.getSteps().stream().map(stepMapper::toDTO).collect(Collectors.toList()));
         dto.setPreConditions(data.getPreConditions().stream().map(preConditionMapper::toDTO).collect(Collectors.toList()));
         dto.setPostConditions(data.getPostConditions().stream().map(postConditionMapper::toDTO).collect(Collectors.toList()));
+        dto.setVersion(data.getVersion());
         return dto;
     }
 
@@ -49,6 +50,7 @@ public class TestCaseDataMapper {
         testCaseData.setTestCaseType(testCaseDataDTO.getTestCaseType());
         testCaseData.setStatus(testCaseDataDTO.getStatus());
         testCaseData.setExpectedExecutionTime(testCaseDataDTO.getExecutionTime());
+        testCaseData.setVersion(testCaseDataDTO.getVersion());
 
         List<TestCaseStep> steps = testCaseDataDTO.getSteps().stream().map(stepMapper::toEntity)
                         .peek(step -> step.setTestCaseData(testCaseData)).toList();

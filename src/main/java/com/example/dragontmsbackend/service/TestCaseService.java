@@ -102,6 +102,9 @@ public class TestCaseService {
             // Получаем существующий TestCase из базы данных
             TestCase testCase = testCaseRepository.findById(testCaseId)
                     .orElseThrow(() -> new IllegalArgumentException("Invalid test case ID"));
+            int version = testCase.getData().size() + 1;
+            System.out.println("============================================" + testCase.getData());
+            testCaseDataDTO.setVersion(version);
 
             // Преобразуем DTO в сущность TestCaseData
             TestCaseData data = dataMapper.toEntity(testCaseDataDTO);

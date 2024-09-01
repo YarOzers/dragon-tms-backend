@@ -71,7 +71,6 @@ public class TestCase {
 
     // Новый метод для добавления TestCaseData
     public void addTestCaseData(TestCaseData data) {
-        data.setVersion(data.getVersion() +1);
         data.setTestCase(this); // Устанавливаем обратную связь
         this.data.add(data);
     }
