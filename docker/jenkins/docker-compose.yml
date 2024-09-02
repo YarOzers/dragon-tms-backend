@@ -9,8 +9,8 @@ services:
       - "50000:50000" # Порт для Jenkins агента
     volumes:
       - jenkins_home:/var/jenkins_home  # Том для сохранения данных Jenkins
-    environment:
-      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"  # Опция для пропуска начального мастера конфигурации
+#    environment:
+#      JAVA_OPTS: "-Djenkins.install.runSetupWizard=true"  # Опция для пропуска начального мастера конфигурации
 
 volumes:
   jenkins_home:
