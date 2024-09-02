@@ -15,16 +15,16 @@ import java.util.Map;
 @Service
 public class TestRunnerService {
 
-    private static final String JENKINS_URL = "http://your-jenkins-server/job/your-job-name/buildWithParameters";
-    private static final String JENKINS_USER = "your-jenkins-username";
-    private static final String JENKINS_TOKEN = "your-jenkins-token";
+    private static final String JENKINS_URL = "http://188.235.130.37:8086/job/MyTestPipeline/buildWithParameters";
+    private static final String JENKINS_USER = "yaroslav";
+    private static final String JENKINS_TOKEN = "113540a6102a6ebe13c169ad0915153bb0";
 
     public Map<String, Object> runTests(List<String> testIds){
         Map<String,Object> response = new HashMap<>();
         try {
 
             // Формирование команды для запуска тестов
-            String command = String.format("mnv -Dtest=%s test", String.join(",", testIds));
+            String command = String.format("mnv -Dgroups==%s test", String.join(",", testIds));
 
             // Запуск команды через ProcessBuilder
             ProcessBuilder processBuilder = new ProcessBuilder(command.split(" "));
@@ -52,6 +52,7 @@ public class TestRunnerService {
         return response;
     }
 
+    // Для параметризованного запуска тестов
     public Map<String, Object> triggerJenkinsJob(List<String> testIds) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
