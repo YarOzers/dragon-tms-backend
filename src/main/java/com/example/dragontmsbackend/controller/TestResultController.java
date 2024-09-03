@@ -9,11 +9,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/test-results")
 public class TestResultController {
 
-    @PostMapping
-    public void receiveTEstResults(@RequestBody String results){
+    @PostMapping(consumes = "application/xml")
+    public String receiveTEstResults(@RequestBody String results){
 
         // Обработка результатов
         System.out.println("Test results received: " + results);
+
+        return "results receipts !";
 
     }
 }
