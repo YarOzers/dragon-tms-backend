@@ -4,15 +4,18 @@ import com.example.dragontmsbackend.model.testplan.TestPlan;
 import com.example.dragontmsbackend.model.user.User;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Data
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@AllArgsConstructor
+@NoArgsConstructor
 public class TestCaseResult {
     @Id
     @GeneratedValue
@@ -43,8 +46,21 @@ public class TestCaseResult {
     @Transient
     private Long testPlanId;
 
+    //Поля автотестов
+    private String autotestName;
+    private String className;
+    private String time;
+    private boolean isFailed;
+
     @PrePersist
     protected void onCreate() {
         this.executedTime = LocalDateTime.now();
+    }
+
+    public TestCaseResult(String autotestName, String className, String time, boolean isFailed){
+        this.autotestName = autotestName;
+        this.className = className;
+        this.time = time;
+        this.isFailed = isFailed;
     }
 }
