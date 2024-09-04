@@ -1,6 +1,7 @@
 package com.example.dragontmsbackend.controller;
 
-import com.example.dragontmsbackend.model.testcase.TestCaseResult;
+import com.example.dragontmsbackend.model.testcase.AutotestResult;
+import com.example.dragontmsbackend.service.AutotestResultService;
 import com.example.dragontmsbackend.service.TestCaseResultService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,33 +14,22 @@ import java.util.List;
 @RequestMapping("/api/test-results")
 public class TestResultController {
 
-    private final TestCaseResultService testCaseResultService;
 
-    public TestResultController(TestCaseResultService testCaseResultService) {
-        this.testCaseResultService = testCaseResultService;
+    private final AutotestResultService autotestResultService;
+
+    public TestResultController(TestCaseResultService testCaseResultService, AutotestResultService autotestResultService) {
+        this.autotestResultService = autotestResultService;
     }
 
-    @PostMapping(consumes = "application/xml")
-    public String receiveTEstResults(@RequestBody String results){
+    @PostMapping
+    public String receiveTEstResults(@RequestBody List<AutotestResult> results){
 
-        String request = results;
-
+        List<AutotestResult>  autotestResults = results;
+        autotestResults.forEach(System.out::println);
         return "result was gotten";
-
-//        try {
-//            // Извлечение результатов тестов из XML
-//            List<TestCaseResult> testCaseResults = testCaseResultService.extractTestResults(results);
-//
-//            // Обработка результатов
-//            testCaseResults.forEach(result -> {
-//                System.out.println("Test Case Result: " + result);
-//            });
-//
-//            return "Results received and processed!";
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return "Error processing results!";
-//        }
+//        Long userId = 1L;
+//        Long testPlanId = 1L;
+//        autotestResultService.setAutotestResult(autotestResults, userId, testPlanId);
 
     }
 }

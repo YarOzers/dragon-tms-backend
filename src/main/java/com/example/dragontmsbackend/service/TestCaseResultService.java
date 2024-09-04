@@ -19,42 +19,4 @@ import java.util.NoSuchElementException;
 @Service
 public class TestCaseResultService {
 
-    private final TestCaseResultRepository testCaseResultRepository;
-    private final TestCaseRepository testCaseRepository;
-
-    public TestCaseResultService(TestCaseResultRepository testCaseResultRepository, TestCaseRepository testCaseRepository) {
-        this.testCaseResultRepository = testCaseResultRepository;
-        this.testCaseRepository = testCaseRepository;
-    }
-
-
-    public List<TestCaseResult> extractTestResults(String xmlData) throws Exception {
-        List<TestCaseResult> testCaseResults = new ArrayList<>();
-
-        // Парсинг XML
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document document = builder.parse(new ByteArrayInputStream(xmlData.getBytes()));
-
-        // Извлечение всех элементов <testcase>
-        NodeList testCaseNodes = document.getElementsByTagName("testcase");
-
-        for (int i = 0; i < testCaseNodes.getLength(); i++) {
-            Element testCaseElement = (Element) testCaseNodes.item(i);
-
-            String testCaseId = testCaseElement.getAttribute("name");
-            String className = testCaseElement.getAttribute("classname");
-            String time = testCaseElement.getAttribute("time");
-
-            NodeList failureNodes = testCaseElement.getElementsByTagName("failure");
-            boolean isFailed = failureNodes.getLength() > 0;
-
-            TestCaseResult result = new TestCaseResult(testCaseId, className, time, isFailed);
-            testCaseResults.add(result);
-        }
-
-        return testCaseResults;
-    }
-
-
 }

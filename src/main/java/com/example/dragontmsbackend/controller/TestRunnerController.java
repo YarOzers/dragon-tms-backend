@@ -20,7 +20,9 @@ public class TestRunnerController {
 
 
     @PostMapping
-    public Map<String, Object> runTests(@RequestBody List<String> testIds){
-        return testRunnerService.triggerJenkinsJob(testIds);
+    public Map<String, Object> runTests(@RequestBody List<String> testIds,
+                                        @RequestParam Long userId,
+                                        @RequestParam Long testPlanId){
+        return testRunnerService.triggerJenkinsJob(testIds, userId,testPlanId);
     }
 }

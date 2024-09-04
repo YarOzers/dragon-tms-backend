@@ -43,6 +43,8 @@ public class TestCase {
 
     private boolean loading;
 
+    private boolean isRun;
+
     private boolean isNew;
 
     @OneToMany(mappedBy = "testCase", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -12,4 +12,5 @@ public interface TestCaseRepository extends JpaRepository<TestCase, Long> {
 
     List<TestCase> findTestCasesByFolder(Folder folder);
     void deleteAllByFolder(Folder folder);
+
 }

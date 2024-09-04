@@ -25,6 +25,8 @@ public class TestCaseResult {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    private boolean isManual;
+
     @CreatedDate
     private LocalDateTime executedTime;
     private Result result;
@@ -46,21 +48,10 @@ public class TestCaseResult {
     @Transient
     private Long testPlanId;
 
-    //Поля автотестов
-    private String autotestName;
-    private String className;
-    private String time;
-    private boolean isFailed;
 
     @PrePersist
     protected void onCreate() {
         this.executedTime = LocalDateTime.now();
     }
 
-    public TestCaseResult(String autotestName, String className, String time, boolean isFailed){
-        this.autotestName = autotestName;
-        this.className = className;
-        this.time = time;
-        this.isFailed = isFailed;
-    }
 }
