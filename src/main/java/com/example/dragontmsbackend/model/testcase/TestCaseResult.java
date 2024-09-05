@@ -34,7 +34,7 @@ public class TestCaseResult {
 
     // Связь с TestPlan (каждый результат связан с одним тест-планом)
     @ManyToOne
-    @JoinColumn(name = "test_plan_id", nullable = false)
+    @JoinColumn(name = "test_plan_id", nullable = true)
 //    @JsonManagedReference(value = "result_testplan")
     @JsonIdentityReference(alwaysAsId = true)
     private TestPlan testPlan;

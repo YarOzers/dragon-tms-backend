@@ -34,7 +34,7 @@ public class AutotestResultService {
         this.testPlanRepository = testPlanRepository;
     }
 
-    public void setAutotestResult(List<AutotestResult> autotestResults, Long userId, Long testPlanId) {
+    public void setAutotestResult(List<AutotestResult> autotestResults) {
         for (AutotestResult result : autotestResults) {
             String millisecondsString = result.getFinishTime();
             long milliseconds = Long.parseLong(millisecondsString);
@@ -56,9 +56,9 @@ public class AutotestResultService {
                     res.setResult(Result.FAILED);
                     break;
             }
-            User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
-            if(testPlanId != null) {
-                TestPlan testPlan = testPlanRepository.findById(testPlanId).orElseThrow(() -> new EntityNotFoundException("Pest plan not found"));
+            User user = userRepository.findById(Long.valueOf(result.getUserId())).orElseThrow(() -> new EntityNotFoundException("User not found"));
+            if(result.getTestPlanId() != null && Long.parseLong(result.getTestPlanId()) != 0) {
+                TestPlan testPlan = testPlanRepository.findById(Long.valueOf(result.getTestPlanId())).orElseThrow(() -> new EntityNotFoundException("Pest plan not found"));
                 res.setTestPlan(testPlan);
             }
             res.setTestCase(testCase);
