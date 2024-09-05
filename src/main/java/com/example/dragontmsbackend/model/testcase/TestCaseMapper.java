@@ -59,6 +59,14 @@ public class TestCaseMapper {
         dto.setType(testCase.getType().toString());
         dto.setAutomationFlag(testCase.getAutomationFlag().toString());
         dto.setFolderId(testCase.getFolder().getId());
+        dto.setRunning(testCase.isRunning());
+        TestCaseResult result = testCase.getResults().stream().reduce((first, second)->second).orElse(null);
+        if (result != null) {
+            dto.setResult(result.getResult().toString());
+        }
+        if (result == null){
+            dto.setResult("Not results");
+        }
         return dto;
     }
 

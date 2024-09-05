@@ -32,5 +32,7 @@ public class TestCaseSummaryDTO {
 
     private String result;
 
+    private boolean isRunning;
+
 
 }

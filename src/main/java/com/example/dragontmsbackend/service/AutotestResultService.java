@@ -27,7 +27,9 @@ public class AutotestResultService {
     private final UserRepository userRepository;
     private final TestPlanRepository testPlanRepository;
 
-    public AutotestResultService(TestCaseResultService testCaseResultService, TestCaseResultRepository testCaseResultRepository, TestCaseRepository testCaseRepository, UserRepository userRepository, TestPlanRepository testPlanRepository) {
+
+
+    public AutotestResultService( TestCaseResultRepository testCaseResultRepository, TestCaseRepository testCaseRepository, UserRepository userRepository, TestPlanRepository testPlanRepository, TestRunnerService testRunnerService) {
         this.testCaseResultRepository = testCaseResultRepository;
         this.testCaseRepository = testCaseRepository;
         this.userRepository = userRepository;
@@ -46,6 +48,7 @@ public class AutotestResultService {
             LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, zoneId);
 
             TestCase testCase = testCaseRepository.findById((Long.valueOf(result.getAS_ID()))).orElseThrow(() -> new EntityNotFoundException("Test case not found"));
+            testCase.setRunning(false);
 
             TestCaseResult res = new TestCaseResult();
             switch (result.getStatus()) {
@@ -66,6 +69,7 @@ public class AutotestResultService {
             res.setExecutedTime(localDateTime);
             res.setManual(false);
             testCaseResultRepository.save(res);
+            testCaseRepository.save(testCase);
         }
     }
 }

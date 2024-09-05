@@ -4,6 +4,7 @@ import com.example.dragontmsbackend.model.testcase.TestCase;
 import com.example.dragontmsbackend.model.testcase.TestRun;
 import com.example.dragontmsbackend.repository.TestCaseRepository;
 import com.example.dragontmsbackend.repository.TestRunRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -37,7 +38,7 @@ public class TestRunnerService {
         long[] ids = testIds.stream().mapToLong(Long::valueOf).toArray();
         for (Long id: ids){
             TestCase testCase = testCaseRepository.findById(id).orElseThrow();
-            testCase.setLoading(true);
+            testCase.setRunning(true);
             testCaseRepository.save(testCase);
         }
 
@@ -79,6 +80,16 @@ public class TestRunnerService {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", e.getMessage());
             return errorResponse;
+        }
+    }
+
+    public void stopLoader(List<String> testIds){
+        // Устанавливаем лоадер в false
+        long[] ids = testIds.stream().mapToLong(Long::valueOf).toArray();
+        for (Long id: ids){
+            TestCase testCase = testCaseRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Test case not found"));
+            testCase.setRunning(true);
+            testCaseRepository.save(testCase);
         }
     }
 }
