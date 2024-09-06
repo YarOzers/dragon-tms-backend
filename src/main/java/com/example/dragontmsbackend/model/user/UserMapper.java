@@ -7,9 +7,9 @@ public class UserMapper {
     public UserDTO toDTO(User user){
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());
-        dto.setRole(user.getRole());
-        dto.setRights(user.getRights());
+        dto.setRoles(user.getRoles());
         dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
         return  dto;
     }
 
@@ -17,8 +17,8 @@ public class UserMapper {
         User user = new User();
         user.setId(userDTO.getId());
         user.setName(userDTO.getName());
-        user.setRole(userDTO.getRole());
-        user.setRights(userDTO.getRights());
+        user.setRoles(userDTO.getRoles());
+        user.setEmail(userDTO.getEmail());
         return user;
     }
 }

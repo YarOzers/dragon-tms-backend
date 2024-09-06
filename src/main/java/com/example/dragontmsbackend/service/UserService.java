@@ -16,13 +16,14 @@ public class UserService {
     }
 
     public User createUser(UserDTO userDTO) {
-        User user = new User();
-        user.setId(userDTO.getId());
-        user.setName(userDTO.getName());
-        user.setRole(userDTO.getRole());
-        user.setRights(userDTO.getRights());
-
-        return userRepository.save(user);
+        return userRepository.findByEmail(userDTO.getEmail()).orElseGet(()->{
+            User user = new User();
+            user.setId(userDTO.getId());
+            user.setName(userDTO.getName());
+            user.setRoles(userDTO.getRoles());
+            user.setEmail(userDTO.getEmail());
+            return userRepository.save(user);
+        });
     }
 
     public User findById(Long authorId) {

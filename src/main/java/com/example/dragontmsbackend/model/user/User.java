@@ -1,19 +1,18 @@
 package com.example.dragontmsbackend.model.user;
 
 import com.example.dragontmsbackend.model.project.Project;
-import com.example.dragontmsbackend.model.testcase.TestCase;
 import com.example.dragontmsbackend.model.testcase.TestCaseData;
 import com.example.dragontmsbackend.model.testcase.TestCaseResult;
 import com.example.dragontmsbackend.model.testplan.TestPlan;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,9 +27,13 @@ public class User {
 
     private String name;
 
-    private Role role;
+    @Column(unique = true)
+    private String email;
 
-    private Right rights;
+    @ElementCollection
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role")
+    private List<String> roles = new ArrayList<>();
 
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
