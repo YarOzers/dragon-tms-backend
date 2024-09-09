@@ -2,6 +2,7 @@ package com.example.dragontmsbackend.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,5 +35,10 @@ public class GlobalExceptionHandler {
         String errorMessage = String.format("The required parameter '%s' is missing", name);
         ErrorResponse errorResponse = new ErrorResponse(errorMessage, "Please ensure all required parameters are provided.");
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
+        return new ResponseEntity<>("Access denied: " + ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 }

@@ -24,7 +24,7 @@ public class TestResultController {
     }
 
     @PostMapping
-    public String receiveTEstResults(@RequestBody List<AutotestResult> results){
+    public String receiveTestResults(@RequestBody List<AutotestResult> results){
 
         autotestResultService.setAutotestResult(results);
 
