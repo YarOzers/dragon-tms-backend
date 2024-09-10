@@ -8,11 +8,12 @@
 		<version>3.3.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
+	<groupId>com.yaroslav</groupId>
 	<artifactId>dragon-tms-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>dragon-tms-backend</name>
 	<description>dragon-tms-backend</description>
+
 	<url/>
 	<licenses>
 		<license/>
