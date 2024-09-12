@@ -1,14 +1,17 @@
 package com.yaroslav.dragontmsbackend.controller;
 
 import com.yaroslav.dragontmsbackend.errors.ErrorsPresentation;
-import com.yaroslav.dragontmsbackend.model.project.ProjectDTO;
 import com.yaroslav.dragontmsbackend.model.project.Project;
+import com.yaroslav.dragontmsbackend.model.project.ProjectDTO;
 import com.yaroslav.dragontmsbackend.model.project.ProjectSummaryDTO;
 import com.yaroslav.dragontmsbackend.service.ProjectService;
 import com.yaroslav.dragontmsbackend.service.UserService;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -51,9 +54,13 @@ public class ProjectController {
     @PostMapping
     public ResponseEntity<?> createProject(
             @RequestBody ProjectDTO projectDTO,
+            @AuthenticationPrincipal Jwt jwtToken,
             UriComponentsBuilder uriComponentsBuilder,
             Locale locale
     ) {
+
+        // Получение значений из токена
+        String email = jwtToken.getClaim("email");     // Получение email
 
         List<String> errors = new ArrayList<>();
 
@@ -74,17 +81,15 @@ public class ProjectController {
             );
             errors.add(authorIdError);
         }else {
-            if(this.userService.findById(projectDTO.getAuthorId()) == null){
+            if(this.userService.findByEmail(email) == null){
                 String authorNotFound = this.messageSource.getMessage(
-                        "author.not.found",
+                        "user.not.found",
                         new Object[0],
                         locale
                 );
                 errors.add(authorNotFound);
             }
         }
-
-
 
         // Если есть ошибки, возвращаем их
         if (!errors.isEmpty()) {

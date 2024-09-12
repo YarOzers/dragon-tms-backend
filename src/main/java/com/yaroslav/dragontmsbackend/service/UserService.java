@@ -6,6 +6,8 @@ import com.yaroslav.dragontmsbackend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
 
@@ -28,5 +30,9 @@ public class UserService {
 
     public User findById(Long authorId) {
         return this.userRepository.findById(authorId).orElse(null);
+    }
+
+    public User findByEmail(String userEmail) {
+        return this.userRepository.findByEmail(userEmail).orElse(null);
     }
 }
