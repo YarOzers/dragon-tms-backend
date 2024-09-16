@@ -17,5 +17,6 @@ public class TestCaseResultDTO {
     private String timeSpent;
     private Long testCaseId;
     private Long testPlanId;
+    private String reportUrl;
 
 }

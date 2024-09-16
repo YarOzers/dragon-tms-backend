@@ -15,11 +15,12 @@ import java.time.LocalDateTime;
 public class AutotestResult {
 
     @JsonProperty("AS_ID")
-    String AS_ID;
-    String status;
-    String finishTime;
-    String userId;
-    String testPlanId;
-    String testRunID;
+    private String AS_ID;
+    private String status;
+    private String finishTime;
+    private String userId;
+    private String testPlanId;
+    private String testRunID;
+    private String reportUrl;
 
 }

@@ -152,8 +152,8 @@ public class TestCaseController {
 
     // Обновление тест-кейса (добавление новой версии данных)
     @PutMapping("/{testCaseId}")
-    public ResponseEntity<TestCase> updateTestCase(@PathVariable Long testCaseId, @RequestBody TestCaseDataDTO testCaseDataDTO) {
-        TestCase updatedTestCase = testCaseService.updateTestCase(testCaseId, testCaseDataDTO);
+    public ResponseEntity<TestCaseSummaryDTO> updateTestCase(@PathVariable Long testCaseId, @RequestBody TestCaseDataDTO testCaseDataDTO) {
+        TestCaseSummaryDTO updatedTestCase = testCaseService.updateTestCase(testCaseId, testCaseDataDTO);
         return ResponseEntity.ok(updatedTestCase);
     }
 

@@ -96,7 +96,7 @@ public class TestCaseService {
 
     // Обновление тест-кейса с добавлением новой версии данных
     @Transactional
-    public TestCase updateTestCase(Long testCaseId, TestCaseDataDTO testCaseDataDTO) {
+    public TestCaseSummaryDTO updateTestCase(Long testCaseId, TestCaseDataDTO testCaseDataDTO) {
         try {
             // Получаем существующий TestCase из базы данных
             TestCase testCase = testCaseRepository.findById(testCaseId)
@@ -137,7 +137,7 @@ public class TestCaseService {
             testCase.setLastDataIndex(testCase.getData().size());
 
             // Сохраняем изменения в базе данных
-            return testCase;
+            return testCaseMapper.toSummaryDTO(testCase);
         } catch (Exception e) {
             log.error("Error updating test case: " + e.getMessage(), e);
             throw new RuntimeException("Failed to update test case with ID: " + testCaseId, e);

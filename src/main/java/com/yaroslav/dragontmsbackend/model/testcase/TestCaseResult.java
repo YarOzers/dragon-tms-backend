@@ -31,6 +31,7 @@ public class TestCaseResult {
     private LocalDateTime executedTime;
     private Result result;
     private String timeSpent;
+    private String reportUrl;
 
     // Связь с TestPlan (каждый результат связан с одним тест-планом)
     @ManyToOne

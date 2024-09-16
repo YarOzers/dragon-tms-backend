@@ -25,5 +25,7 @@ public class TestCaseSummaryDTO {
 
     private boolean isRunning;
 
+    private String reportUrl;
+
 
 }

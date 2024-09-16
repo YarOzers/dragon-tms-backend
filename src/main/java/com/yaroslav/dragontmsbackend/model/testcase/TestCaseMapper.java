@@ -53,14 +53,22 @@ public class TestCaseMapper {
     public TestCaseSummaryDTO toSummaryDTO(TestCase testCase) {
         TestCaseSummaryDTO dto = new TestCaseSummaryDTO();
         dto.setId(testCase.getId());
-        dto.setName(getName(testCase));
+        if (!testCase.getData().isEmpty()){
+            TestCaseData data = testCase.getData().stream().reduce((first,second)->second).orElse(null);
+            dto.setName(data.getName());
+            dto.setAutomationFlag(data.getAutomationFlag().toString());
+
+        }else {
+            dto.setName(testCase.getName());
+            dto.setAutomationFlag(testCase.getAutomationFlag().toString());
+        }
         dto.setType(testCase.getType().toString());
-        dto.setAutomationFlag(testCase.getAutomationFlag().toString());
         dto.setFolderId(testCase.getFolder().getId());
         dto.setRunning(testCase.isRunning());
         TestCaseResult result = testCase.getResults().stream().reduce((first, second)->second).orElse(null);
         if (result != null) {
             dto.setResult(result.getResult().toString());
+            dto.setReportUrl(result.getReportUrl());
         }
         if (result == null){
             dto.setResult("Not results");

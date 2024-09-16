@@ -18,7 +18,12 @@ public class TestCaseCreateMapper {
     public TestCaseCreateDTO toDTO(TestCase testCase){
         TestCaseCreateDTO dto = new TestCaseCreateDTO();
         dto.setId(testCase.getId());
-        dto.setName(testCase.getName());
+        if (!testCase.getData().isEmpty()){
+            TestCaseData data = testCase.getData().stream().reduce((first,second)->second).orElse(null);
+            dto.setName(data.getName());
+        }else {
+            dto.setName(testCase.getName());
+        }
         dto.setType(testCase.getType());
         dto.setAutomationFlag(testCase.getAutomationFlag());
         dto.setData(testCase.getData().stream().map(dataMapper::toDTO).collect(Collectors.toList()));

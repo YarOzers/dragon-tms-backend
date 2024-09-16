@@ -67,6 +67,7 @@ public class AutotestResultService {
             res.setUser(user);
             res.setExecutedTime(localDateTime);
             res.setManual(false);
+            res.setReportUrl(result.getReportUrl());
             testCaseResultRepository.save(res);
             testCaseRepository.save(testCase);
         }
