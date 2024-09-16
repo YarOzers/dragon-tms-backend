@@ -1,13 +1,18 @@
 package com.yaroslav.dragontmsbackend.model.testcase;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -15,16 +20,26 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-
+@EntityListeners(AuditingEntityListener.class)
 public class TestRun {
 
     @Id
     @GeneratedValue
-    Long id;
+    private Long id;
 
-    Long userId;
+    private Long userId;
 
-    Long testPlanId;
+    private Long testPlanId;
 
-    UUID name;
+    private Long projectId;
+
+    private UUID name;
+
+    @OneToMany(mappedBy = "testRun", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<AutotestResult> autotestResults = new ArrayList<>();
+
+    @CreatedDate
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime created;
 }

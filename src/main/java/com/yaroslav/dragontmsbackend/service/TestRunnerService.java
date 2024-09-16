@@ -32,7 +32,7 @@ public class TestRunnerService {
     }
 
     // Для параметризованного запуска тестов
-    public Map<String, Object> triggerJenkinsJob(List<String> testIds, Long userId, Long testPlanId) {
+    public Map<String, Object> triggerJenkinsJob(List<String> testIds, Long userId, Long testPlanId, Long projectId) {
 
         // Устанавливаем лоадер в true
         long[] ids = testIds.stream().mapToLong(Long::valueOf).toArray();
@@ -47,6 +47,7 @@ public class TestRunnerService {
         testRun.setUserId(userId);
         testRun.setTestPlanId(testPlanId);
         testRun.setName(uuid);
+        testRun.setProjectId(projectId);
         testRunRepository.save(testRun);
 
         RestTemplate restTemplate = new RestTemplate();
@@ -62,6 +63,7 @@ public class TestRunnerService {
         params.add("USER_ID", String.valueOf(userId));
         params.add("TEST_PLAN_ID", String.valueOf(testPlanId));
         params.add("TEST_RUN_ID", uuid.toString());
+        params.add("PROJECT_ID", String.valueOf(projectId));
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
@@ -91,5 +93,9 @@ public class TestRunnerService {
             testCase.setRunning(true);
             testCaseRepository.save(testCase);
         }
+    }
+
+    public List<TestRun> getProjectTestRuns(Long projectId) {
+        return testRunRepository.findByProjectId(projectId).orElse(null);
     }
 }
