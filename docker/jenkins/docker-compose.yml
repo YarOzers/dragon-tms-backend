@@ -5,7 +5,7 @@ services:
     image: jenkins/jenkins:lts
     container_name: jenkins
     ports:
-      - "8088:8080"  # Порт для доступа к Jenkins UI
+      - "80:8080"  # Порт для доступа к Jenkins UI
       - "50000:50000" # Порт для Jenkins агента
     volumes:
       - jenkins_home:/var/jenkins_home  # Том для сохранения данных Jenkins
