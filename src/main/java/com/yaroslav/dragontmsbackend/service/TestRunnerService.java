@@ -22,9 +22,9 @@ public class TestRunnerService {
     private final TestRunRepository testRunRepository;
     private final TestCaseRepository testCaseRepository;
 
-    private static final String JENKINS_URL = "http://188.235.130.37:8086/job/MyTestPipeline/buildWithParameters";
+    private static final String JENKINS_URL = "https://dragon-tms.tplinkdns.com:8089/job/MyTestPipeline/buildWithParameters";
     private static final String JENKINS_USER = "yaroslav";
-    private static final String JENKINS_TOKEN = "113540a6102a6ebe13c169ad0915153bb0";
+    private static final String JENKINS_TOKEN = "1115d1e9e9d0ec89db0a578dffd1fe69f6";
 
     public TestRunnerService(TestRunRepository testRunRepository, TestCaseRepository testCaseRepository) {
         this.testRunRepository = testRunRepository;
