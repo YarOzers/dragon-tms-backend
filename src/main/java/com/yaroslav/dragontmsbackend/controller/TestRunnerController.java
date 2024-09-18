@@ -1,6 +1,7 @@
 package com.yaroslav.dragontmsbackend.controller;
 
 import com.yaroslav.dragontmsbackend.model.testcase.TestRun;
+import com.yaroslav.dragontmsbackend.model.testcase.TestRunDTO;
 import com.yaroslav.dragontmsbackend.service.TestRunnerService;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +31,11 @@ public class TestRunnerController {
 
     @PostMapping
     public Map<String, Object> runTests(@RequestBody List<String> testIds,
-                                        @RequestParam Long userId,
+                                        @RequestParam String userEmail,
                                         @RequestParam Long testPlanId,
                                         @RequestParam Long projectId){
 
-        return testRunnerService.triggerJenkinsJob(testIds, userId,testPlanId, projectId);
+        return testRunnerService.triggerJenkinsJob(testIds, userEmail,testPlanId, projectId);
     }
 
     @PostMapping("/jenkins-callback")
@@ -51,7 +52,7 @@ public class TestRunnerController {
 
     @GetMapping
     public ResponseEntity<?> getProjectTestRuns(@RequestParam Long projectId, Locale locale){
-        List<TestRun> testRuns =  testRunnerService.getProjectTestRuns(projectId);
+        List<TestRunDTO> testRuns =  testRunnerService.getProjectTestRuns(projectId);
         String noTestRunsMsg = this.messageSource.getMessage(
                 "project.has.no.test_runs",
                 new Object[0],

@@ -68,7 +68,7 @@ public class AutotestResultService {
                     res.setResult(Result.FAILED);
                     break;
             }
-            User user = userRepository.findById(Long.valueOf(result.getUserId())).orElseThrow(() -> new EntityNotFoundException("User not found"));
+            User user = userRepository.findByEmail(result.getUserEmail()).orElseThrow(() -> new EntityNotFoundException("User not found"));
             if(result.getTestPlanId() != null && Long.parseLong(result.getTestPlanId()) != 0) {
                 TestPlan testPlan = testPlanRepository.findById(Long.valueOf(result.getTestPlanId())).orElseThrow(() -> new EntityNotFoundException("Pest plan not found"));
                 res.setTestPlan(testPlan);

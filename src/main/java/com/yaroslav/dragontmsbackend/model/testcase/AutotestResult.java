@@ -25,7 +25,7 @@ public class AutotestResult {
     private String AS_ID;
     private String status;
     private String finishTime;
-    private String userId;
+    private String userEmail;
     private String testPlanId;
     private String testRunID;
     private String reportUrl;

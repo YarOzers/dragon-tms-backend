@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @RestController
@@ -24,15 +25,21 @@ public class TestResultController {
     }
 
     @PostMapping
-    public String receiveTestResults(@RequestBody List<AutotestResult> results){
+    public String receiveTestResults(@RequestBody List<AutotestResult> results) throws UnsupportedEncodingException {
 
         autotestResultService.setAutotestResult(results);
 
         // Получаем userId (предполагается, что он есть в результатах)
-        Long userId = Long.valueOf(results.get(0).getUserId()); // Замените это на корректный способ получения userId
+        AutotestResult result = results.stream().reduce((f,c)->c).orElse(null); // Замените это на корректный способ получения userId
+        if (result != null){
+            String userEmail = result.getUserEmail();
+            // Отправляем обновление статуса тестов через WebSocket
+            webSocketService.sendTestStatusUpdate(userEmail, results);
 
-        // Отправляем обновление статуса тестов через WebSocket
-        webSocketService.sendTestStatusUpdate(userId, results);
+
+        }else {
+            webSocketService.sendTestStatusUpdate("User email not found", results);
+        }
 
         return "result was gotten";
     }

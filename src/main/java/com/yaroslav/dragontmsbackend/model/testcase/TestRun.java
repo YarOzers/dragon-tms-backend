@@ -27,7 +27,7 @@ public class TestRun {
     @GeneratedValue
     private Long id;
 
-    private Long userId;
+    private String userEmail;
 
     private Long testPlanId;
 
