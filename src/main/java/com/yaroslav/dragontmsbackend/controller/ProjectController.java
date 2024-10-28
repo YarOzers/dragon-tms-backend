@@ -9,16 +9,16 @@ import com.yaroslav.dragontmsbackend.service.UserService;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -51,6 +51,7 @@ public class ProjectController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<?> createProject(
             @RequestBody ProjectDTO projectDTO,
@@ -59,6 +60,8 @@ public class ProjectController {
             Locale locale
     ) {
 
+        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        authorities.forEach(auth -> System.out.println("Granted Authority: " + auth.getAuthority()));
         // Получение значений из токена
         String email = jwtToken.getClaim("email");     // Получение email
 
@@ -113,6 +116,7 @@ public class ProjectController {
         return ResponseEntity.ok(updatedProject);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
