@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class WebSocketService {
@@ -25,6 +26,11 @@ public class WebSocketService {
         //не знаю зачем я так делал, будет проверка на пользака, и ответ придет только тому, кто запустил тесты))
 //        messagingTemplate.convertAndSend("/topic/test-status/" + encodedEmail, results);
         messagingTemplate.convertAndSend("/topic/test-status/", results);
+    }
+
+    public void sendTestStarted(List<String> testIds) {
+        System.out.println("Отправление сообщения в вебсокете о запуске тестов");
+        messagingTemplate.convertAndSend("/topic/test-status/", Map.of("testIds", testIds, "status", "started"));
     }
 
 }

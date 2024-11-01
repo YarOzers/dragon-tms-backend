@@ -16,9 +16,9 @@ public class WebSocketController {
     }
 
 
-    public void sendTestStatusUpdate(Long userId, List<String> testIds, String status){
+    public void sendTestStatusUpdate(List<String> testIds, String status){
 
-        messagingTemplate.convertAndSend("/topic/test-status/" + userId, Map.of("testIds", testIds, "status", status));
+        messagingTemplate.convertAndSend("/topic/test-status/", Map.of("testIds", testIds, "status", status));
 
     }
 }

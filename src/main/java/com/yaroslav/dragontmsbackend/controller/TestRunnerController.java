@@ -3,6 +3,7 @@ package com.yaroslav.dragontmsbackend.controller;
 import com.yaroslav.dragontmsbackend.model.testcase.TestRun;
 import com.yaroslav.dragontmsbackend.model.testcase.TestRunDTO;
 import com.yaroslav.dragontmsbackend.service.TestRunnerService;
+import com.yaroslav.dragontmsbackend.service.WebSocketService;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,11 +22,14 @@ public class TestRunnerController {
     private final TestRunnerService testRunnerService;
     private final WebSocketController webSocketController;
     private final MessageSource messageSource;
+    private final WebSocketService webSocketService;
 
-    public TestRunnerController(TestRunnerService testRunnerService, WebSocketController webSocketController, MessageSource messageSource) {
+    public TestRunnerController(TestRunnerService testRunnerService, WebSocketController webSocketController, MessageSource messageSource, WebSocketService webSocketService) {
         this.testRunnerService = testRunnerService;
         this.webSocketController = webSocketController;
         this.messageSource = messageSource;
+
+        this.webSocketService = webSocketService;
     }
 
 
@@ -34,18 +38,19 @@ public class TestRunnerController {
                                         @RequestParam String userEmail,
                                         @RequestParam Long testPlanId,
                                         @RequestParam Long projectId){
+        webSocketService.sendTestStarted(testIds);
 
         return testRunnerService.triggerJenkinsJob(testIds, userEmail,testPlanId, projectId);
+
     }
 
     @PostMapping("/jenkins-callback")
     public ResponseEntity<Void> handleJenkinsCallback(@RequestBody Map<String, Object> payload) {
         List<String> testIds = (List<String>) payload.get("testIds");
         String status = (String) payload.get("status");
-        Long userId = (Long) payload.get("userId");
 
         // Отправляем обновление статуса через WebSocket
-        webSocketController.sendTestStatusUpdate(userId, testIds, status);
+        webSocketController.sendTestStatusUpdate(testIds, status);
 
         return ResponseEntity.ok().build();
     }
