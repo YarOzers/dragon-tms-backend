@@ -21,7 +21,10 @@ public class WebSocketService {
     public void sendTestStatusUpdate(String userEmail, List<AutotestResult> results) throws UnsupportedEncodingException {
         //
         String encodedEmail = URLEncoder.encode(userEmail, StandardCharsets.UTF_8);
-        messagingTemplate.convertAndSend("/topic/test-status/" + encodedEmail, results);
+
+        //не знаю зачем я так делал, будет проверка на пользака, и ответ придет только тому, кто запустил тесты))
+//        messagingTemplate.convertAndSend("/topic/test-status/" + encodedEmail, results);
+        messagingTemplate.convertAndSend("/topic/test-status/", results);
     }
 
 }

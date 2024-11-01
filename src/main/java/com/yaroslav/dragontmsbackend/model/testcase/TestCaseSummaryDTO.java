@@ -1,5 +1,6 @@
 package com.yaroslav.dragontmsbackend.model.testcase;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,8 @@ public class TestCaseSummaryDTO {
 
     private String result;
 
+
+    @JsonProperty("isRunning")
     private boolean isRunning;
 
     private String reportUrl;

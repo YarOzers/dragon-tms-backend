@@ -1,5 +1,7 @@
 package com.yaroslav.dragontmsbackend.model.testcase;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.yaroslav.dragontmsbackend.model.folder.Folder;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -53,6 +55,8 @@ public class TestCase {
     private List<TestCaseResult> results;
 
     private boolean selected;
+
+    @JsonProperty("isRunning")
     private boolean isRunning;
 
     public boolean getLoading() {
