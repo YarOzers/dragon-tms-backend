@@ -404,4 +404,7 @@ public class TestCaseService {
         return this.testCaseRepository.findById(testCaseId).orElseThrow(() -> new NoSuchElementException("Not found test case with id=" + testCaseId));
     }
 
+    public List<TestCase> getTestCasesById(List<Long> testCaseIds) {
+        return testCaseRepository.findAllById(testCaseIds);
+    }
 }
